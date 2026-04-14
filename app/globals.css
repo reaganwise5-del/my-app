@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  --green: #22c55e;
+  --green-dim: rgba(34, 197, 94, 0.12);
+  --green-border: rgba(34, 197, 94, 0.25);
+}
+
+body {
+  background: #000000;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+* { box-sizing: border-box; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 0px; }
+
+/* iOS momentum scrolling */
+.scroll-ios {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Safe area for iPhone notch / home indicator */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
+}
