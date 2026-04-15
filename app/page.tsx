@@ -63,12 +63,18 @@ export default function HomePage() {
   const [searches, setSearches] = useState<Search[]>(mockSearches);
   const [modal, setModal] = useState<ModalState>(null);
 
+  // Persist searches to localStorage so the feed page can read them
+  function persist(updated: Search[]) {
+    setSearches(updated);
+    try { localStorage.setItem('flipalert_searches', JSON.stringify(updated)); } catch { /* ignore */ }
+  }
+
   function toggleSearch(id: string) {
-    setSearches(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s));
+    persist(searches.map(s => s.id === id ? { ...s, active: !s.active } : s));
   }
 
   function saveSearch(updated: Search) {
-    setSearches(prev => prev.map(s => s.id === updated.id ? updated : s));
+    persist(searches.map(s => s.id === updated.id ? updated : s));
   }
 
   const activeCount = searches.filter(s => s.active).length;

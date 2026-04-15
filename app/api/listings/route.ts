@@ -3,10 +3,21 @@ import { ApifyClient } from 'apify-client';
 
 // ─────────────────────────────────────────────────────────────
 //  FlipAlert — Real listings via Apify
-//  Actor: apify/facebook-marketplace-scraper
+//  Runs one search per active customer alert
 // ─────────────────────────────────────────────────────────────
 
 const APIFY_API_KEY = process.env.APIFY_API_KEY ?? process.env.APIFY_API_TOKEN ?? '';
+
+export interface SearchParams {
+  make: string;       // e.g. "Honda"
+  model: string;      // e.g. "Civic" or "Any"
+  maxPrice: number;   // e.g. 12000
+  maxMileage: number; // e.g. 100000
+  minYear: number;    // e.g. 2015
+  location: string;   // zip code or city name e.g. "24501" or "Richmond, VA"
+  radius: number;     // miles
+  maxResults?: number;
+}
 
 export async function POST(req: NextRequest) {
   if (!APIFY_API_KEY) {
@@ -16,62 +27,54 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const body = await req.json().catch(() => ({}));
-  const {
-    query = 'used car',
-    location = '',
-    maxPrice,
-    maxResults = 40,
-  } = body;
+  const body: SearchParams = await req.json().catch(() => ({
+    make: 'Any', model: 'Any', maxPrice: 20000, maxMileage: 150000,
+    minYear: 2010, location: '', radius: 50, maxResults: 40,
+  }));
 
-  // Build the Facebook Marketplace search URL
-  const params = new URLSearchParams({ query });
-  if (maxPrice) params.set('maxPrice', String(maxPrice));
+  const { make, model, maxPrice, maxMileage, minYear, location, maxResults = 40 } = body;
 
-  // FB Marketplace search URL — Apify navigates this directly
-  const searchUrl = `https://www.facebook.com/marketplace/search/?${params.toString()}`;
+  // Build the search query — e.g. "Honda Civic" or "Toyota" or "used car"
+  let query = '';
+  if (make && make !== 'Any') query += make;
+  if (model && model !== 'Any') query += ` ${model}`;
+  if (!query) query = 'used car';
+  query = query.trim();
+
+  // Build Facebook Marketplace search URL
+  const fbParams = new URLSearchParams({ query });
+  if (maxPrice) fbParams.set('maxPrice', String(maxPrice));
+  if (location) fbParams.set('deliveryMethod', 'local_pick_up');
+  const searchUrl = `https://www.facebook.com/marketplace/search/?${fbParams.toString()}`;
 
   const client = new ApifyClient({ token: APIFY_API_KEY });
 
   try {
-    console.log(`[FlipAlert] Starting Apify run — query: "${query}", location: "${location}"`);
+    console.log(`[FlipAlert] Searching: "${query}" | max $${maxPrice} | ${location}`);
 
-    // Run the actor and wait for it to finish
     const run = await client.actor('apify/facebook-marketplace-scraper').call({
       startUrls: [{ url: searchUrl }],
       maxItems: maxResults,
       proxyConfiguration: { useApifyProxy: true },
     }, {
-      waitSecs: 90,  // wait up to 90 seconds
+      waitSecs: 90,
       memory: 512,
     });
 
-    // Fetch results from the dataset
     const { items } = await client.dataset(run.defaultDatasetId).listItems({ limit: maxResults });
-
-    console.log(`[FlipAlert] Got ${items.length} raw items from Apify`);
+    console.log(`[FlipAlert] Got ${items.length} raw items for "${query}"`);
 
     const listings = (items as ApifyItem[])
-      .filter(isLikelyCar)
+      .filter(item => isValidCar(item, { maxPrice, maxMileage, minYear }))
       .map((item, idx) => normalizeListing(item, idx, location))
       .filter(Boolean);
 
-    console.log(`[FlipAlert] Returning ${listings.length} car listings`);
-
-    return NextResponse.json({
-      listings,
-      source: 'live',
-      count: listings.length,
-      rawCount: items.length,
-    });
+    return NextResponse.json({ listings, source: 'live', count: listings.length, query });
 
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('[FlipAlert] Apify error:', msg);
-    return NextResponse.json(
-      { error: msg, listings: [], source: 'error' },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: msg, listings: [], source: 'error' }, { status: 502 });
   }
 }
 
@@ -99,94 +102,81 @@ interface ApifyItem {
   postedAt?: string;
   createdAt?: string;
   condition?: string;
-  categoryName?: string;
 }
 
-// ─── Car-only filter ──────────────────────────────────────────
-const JUNK_KEYWORDS = /\b(boat|atv|trailer|hitch|mower|rv|camper|motorcycle|motorbike|scooter|tractor|jet ski|snowmobile|parts only|salvage title|furniture|couch|sofa|dresser|table)\b/i;
+// ─── Filters ──────────────────────────────────────────────────
+const JUNK = /\b(boat|atv|trailer|mower|rv|camper|motorcycle|scooter|tractor|jet ski|snowmobile|parts only|salvage|furniture|couch|dresser)\b/i;
 
-function isLikelyCar(item: ApifyItem): boolean {
-  const title = (item.title ?? item.name ?? '').toLowerCase();
-  const desc = (item.description ?? item.text ?? '').toLowerCase();
-  const category = (item.categoryName ?? '').toLowerCase();
+function isValidCar(item: ApifyItem, filters: { maxPrice: number; maxMileage: number; minYear: number }): boolean {
+  const title = (item.title ?? item.name ?? '');
+  if (JUNK.test(title)) return false;
 
-  // Skip obvious non-cars
-  if (JUNK_KEYWORDS.test(title) || JUNK_KEYWORDS.test(desc)) return false;
-
-  // Skip if no price
   const rawPrice = item.price ?? item.priceAmount;
   if (!rawPrice) return false;
-
-  // Skip "free" or very cheap listings
-  const price = typeof rawPrice === 'string'
-    ? parseInt(rawPrice.replace(/[^0-9]/g, ''), 10)
-    : rawPrice;
+  const price = typeof rawPrice === 'string' ? parseInt(rawPrice.replace(/[^0-9]/g, ''), 10) : rawPrice;
   if (!price || price < 500) return false;
+
+  // Respect the customer's max price filter
+  if (filters.maxPrice && price > filters.maxPrice) return false;
+
+  // Respect mileage filter if available
+  if (item.mileage && filters.maxMileage) {
+    const miles = typeof item.mileage === 'string'
+      ? parseInt(item.mileage.replace(/[^0-9]/g, ''), 10)
+      : item.mileage;
+    if (miles && miles > filters.maxMileage) return false;
+  }
+
+  // Respect min year filter if available
+  if (item.year && filters.minYear) {
+    const yr = typeof item.year === 'string' ? parseInt(item.year, 10) : item.year;
+    if (yr && yr < filters.minYear) return false;
+  }
 
   return true;
 }
 
-// ─── Normalize Apify item → FlipAlert Listing ─────────────────
+// ─── Normalize ────────────────────────────────────────────────
 function normalizeListing(item: ApifyItem, idx: number, searchLocation: string) {
-  // Price
   const rawPrice = item.price ?? item.priceAmount ?? 0;
   const askingPrice = typeof rawPrice === 'string'
-    ? parseInt(rawPrice.replace(/[^0-9]/g, ''), 10)
-    : rawPrice;
+    ? parseInt(rawPrice.replace(/[^0-9]/g, ''), 10) : rawPrice;
   if (!askingPrice || askingPrice < 500) return null;
 
-  // Mileage
   const rawMileage = item.mileage ?? '';
   const mileage = typeof rawMileage === 'string'
-    ? (parseInt(rawMileage.replace(/[^0-9]/g, ''), 10) || 80000)
-    : (rawMileage || 80000);
+    ? (parseInt(rawMileage.replace(/[^0-9]/g, ''), 10) || 80000) : (rawMileage || 80000);
 
-  // Year
   const rawYear = item.year ?? '';
-  const year = typeof rawYear === 'string'
-    ? (parseInt(rawYear, 10) || 2016)
-    : (rawYear || 2016);
+  const year = typeof rawYear === 'string' ? (parseInt(rawYear, 10) || 2016) : (rawYear || 2016);
 
-  // Title
   const title = item.title ?? item.name ?? 'Vehicle';
 
-  // Market value estimate (will be replaced with real API later)
-  // Newer cars tend to be priced below market on FB Marketplace
+  // Estimated market value (replaced with real API later)
   const multiplier = year >= 2020 ? 1.30 : year >= 2017 ? 1.24 : year >= 2014 ? 1.18 : 1.12;
   const marketValue = Math.round(askingPrice * multiplier);
   const profit = marketValue - askingPrice;
 
-  // Location
-  let locationStr = searchLocation || 'Unknown';
+  let locationStr = searchLocation || '';
   if (item.location) {
-    if (typeof item.location === 'string') {
-      locationStr = item.location;
-    } else {
+    if (typeof item.location === 'string') locationStr = item.location;
+    else {
       const city = item.location.city ?? item.location.name ?? '';
       const state = item.location.state ?? '';
       if (city) locationStr = state ? `${city}, ${state}` : city;
     }
   }
 
-  // Image
-  const image =
-    item.photoUrls?.[0] ??
-    item.images?.[0] ??
-    item.thumbnail ??
-    item.image ??
-    'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=300&fit=crop';
+  const image = item.photoUrls?.[0] ?? item.images?.[0] ?? item.thumbnail ?? item.image
+    ?? 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=300&fit=crop';
 
-  // URL
   const url = item.listingUrl ?? item.url ?? '#';
-
-  // Posted time
   const postedAt = item.createdAt ?? item.postedAt ?? new Date().toLocaleString();
   const postedMinutesAgo = postedAt
-    ? Math.max(0, Math.round((Date.now() - new Date(postedAt).getTime()) / 60000))
-    : 0;
+    ? Math.max(0, Math.round((Date.now() - new Date(postedAt).getTime()) / 60000)) : 0;
 
   return {
-    id: item.listingId ?? item.id ?? `live-${idx}`,
+    id: item.listingId ?? item.id ?? `live-${idx}-${Date.now()}`,
     title,
     year,
     make: item.make ?? parseMake(title),
@@ -207,14 +197,11 @@ function normalizeListing(item: ApifyItem, idx: number, searchLocation: string) 
   };
 }
 
-// ─── Helpers ──────────────────────────────────────────────────
-const MAKES = ['Honda','Toyota','Ford','Chevrolet','Chevy','Nissan','Subaru','Jeep','GMC','Dodge','Ram','Hyundai','Kia','Lexus','Mazda','BMW','Mercedes','Audi','Volkswagen','Volvo','Buick','Cadillac','Chrysler','Infiniti','Acura','Mitsubishi','Lincoln','Pontiac','Saturn','Oldsmobile'];
+const MAKES = ['Honda','Toyota','Ford','Chevrolet','Chevy','Nissan','Subaru','Jeep','GMC','Dodge','Ram','Hyundai','Kia','Lexus','Mazda','BMW','Mercedes','Audi','Volkswagen','Volvo','Buick','Cadillac','Chrysler','Infiniti','Acura','Mitsubishi','Lincoln','Pontiac'];
 
 function parseMake(title: string): string {
   const t = title.toLowerCase();
-  for (const make of MAKES) {
-    if (t.includes(make.toLowerCase())) return make === 'Chevy' ? 'Chevrolet' : make;
-  }
+  for (const m of MAKES) if (t.includes(m.toLowerCase())) return m === 'Chevy' ? 'Chevrolet' : m;
   return 'Unknown';
 }
 

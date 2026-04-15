@@ -5,10 +5,20 @@ import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
 import ListingCardGrid from '../components/ListingCardGrid';
 import NewSearchModal from '../components/NewSearchModal';
-import { mockListings, type Listing } from '../lib/mockData';
+import { mockListings, mockSearches, type Listing, type Search } from '../lib/mockData';
 
 type Tab = 'picks' | 'all';
 type DataSource = 'live' | 'demo' | 'loading' | 'error';
+
+// Read saved searches from localStorage, fall back to mockSearches
+function getSavedSearches(): Search[] {
+  if (typeof window === 'undefined') return mockSearches;
+  try {
+    const raw = localStorage.getItem('flipalert_searches');
+    if (raw) return JSON.parse(raw) as Search[];
+  } catch { /* ignore */ }
+  return mockSearches;
+}
 
 export default function FeedPage() {
   const [tab, setTab] = useState<Tab>('picks');
@@ -17,34 +27,83 @@ export default function FeedPage() {
   const [source, setSource] = useState<DataSource>('demo');
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchProgress, setSearchProgress] = useState('');
 
-  // Try fetching real listings from Apify on mount
-  const fetchRealListings = useCallback(async (silent = false) => {
-    if (!silent) setSource('loading');
+  const fetchRealListings = useCallback(async () => {
+    setSource('loading');
     setRefreshing(true);
-    try {
-      const res = await fetch('/api/listings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: 'used car',
-          maxResults: 40,
-        }),
-      });
-      const data = await res.json();
+    setSearchProgress('');
 
-      if (res.ok && data.listings?.length > 0) {
-        setListings(data.listings);
+    try {
+      // Get the customer's active search alerts
+      const searches = getSavedSearches().filter(s => s.active);
+
+      if (searches.length === 0) {
+        // No active searches — do a generic search
+        searches.push({
+          id: 'default', name: 'Used Cars', make: 'Any', model: 'Any',
+          minYear: 2012, maxYear: 2024, maxPrice: 20000, maxMileage: 150000,
+          zipCode: '', radius: 50, active: true, alertsToday: 0,
+        });
+      }
+
+      // Run one Apify search per active alert, collect all results
+      const allListings: Listing[] = [];
+      const seen = new Set<string>();
+
+      for (let i = 0; i < searches.length; i++) {
+        const s = searches[i];
+        setSearchProgress(`Searching "${s.name}" (${i + 1}/${searches.length})…`);
+
+        try {
+          const res = await fetch('/api/listings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              make: s.make,
+              model: s.model,
+              maxPrice: s.maxPrice,
+              maxMileage: s.maxMileage,
+              minYear: s.minYear,
+              location: s.zipCode,
+              radius: s.radius,
+              maxResults: 30,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.error?.includes('APIFY_API_KEY not set')) {
+            setSource('demo');
+            setListings(mockListings);
+            return;
+          }
+
+          if (data.listings?.length) {
+            for (const l of data.listings) {
+              if (!seen.has(l.id)) {
+                seen.add(l.id);
+                allListings.push(l as Listing);
+              }
+            }
+          }
+        } catch {
+          // one search failed — continue to next
+          continue;
+        }
+      }
+
+      setSearchProgress('');
+
+      if (allListings.length > 0) {
+        setListings(allListings);
         setSource('live');
         setLastRefresh(new Date());
-      } else if (data.error?.includes('APIFY_API_KEY not set')) {
-        // No key yet — stay on demo
-        setSource('demo');
-        setListings(mockListings);
       } else {
         setSource('error');
         setListings(mockListings);
       }
+
     } catch {
       setSource('error');
       setListings(mockListings);
@@ -57,13 +116,12 @@ export default function FeedPage() {
     fetchRealListings();
   }, [fetchRealListings]);
 
-  const aiPicks = [...listings]
+  const topDeals = [...listings]
     .filter(l => (l.profit / l.askingPrice) >= 0.15)
     .sort((a, b) => (b.profit / b.askingPrice) - (a.profit / a.askingPrice));
 
-  const allListings = [...listings].sort((a, b) => a.postedMinutesAgo - b.postedMinutesAgo);
-
-  const displayListings = tab === 'picks' ? aiPicks : allListings;
+  const allSorted = [...listings].sort((a, b) => a.postedMinutesAgo - b.postedMinutesAgo);
+  const displayListings = tab === 'picks' ? topDeals : allSorted;
 
   function timeSince(d: Date) {
     const mins = Math.floor((Date.now() - d.getTime()) / 60000);
@@ -81,39 +139,35 @@ export default function FeedPage() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            style={{ background: '#22c55e', color: '#000', fontWeight: 700, fontSize: 13, padding: '7px 14px', borderRadius: 20 }}
+            style={{ background: '#1C1C1E', color: '#fff', fontWeight: 600, fontSize: 13, padding: '7px 14px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)' }}
           >
-            + New Search
+            + New Alert
           </button>
         </div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 6, background: '#1C1C1E', borderRadius: 10, padding: 3 }}>
           {(['picks', 'all'] as Tab[]).map(t => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              style={{ flex: 1, padding: '7px 0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: tab === t ? '#fff' : '#636366', background: tab === t ? '#3A3A3C' : 'transparent', transition: 'all 0.2s' }}
-            >
-              {t === 'picks' ? `Top Deals` : 'All Listings'}
+            <button key={t} type="button" onClick={() => setTab(t)}
+              style={{ flex: 1, padding: '7px 0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: tab === t ? '#fff' : '#636366', background: tab === t ? '#3A3A3C' : 'transparent', transition: 'all 0.2s' }}>
+              {t === 'picks' ? 'Top Deals' : 'All Listings'}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Data source banner */}
-      <DataBanner source={source} lastRefresh={lastRefresh} refreshing={refreshing} onRefresh={() => fetchRealListings(false)} timeSince={timeSince} />
+      {/* Status banner */}
+      <StatusBanner source={source} lastRefresh={lastRefresh} refreshing={refreshing}
+        progress={searchProgress} onRefresh={fetchRealListings} timeSince={timeSince} />
 
-
-      {/* Feed — 2 column grid */}
+      {/* Feed */}
       <div style={{ padding: '12px 12px 0' }}>
         {source === 'loading' ? (
-          <LoadingSkeleton />
+          <LoadingSkeleton progress={searchProgress} />
         ) : displayListings.length === 0 ? (
           <div style={{ textAlign: 'center', paddingTop: 80 }}>
-            <p style={{ color: '#636366', fontSize: 15 }}>No listings yet.</p>
-            <p style={{ color: '#3A3A3C', fontSize: 13, marginTop: 4 }}>Create a search to start getting alerts.</p>
+            <p style={{ color: '#636366', fontSize: 15 }}>No listings found.</p>
+            <p style={{ color: '#3A3A3C', fontSize: 13, marginTop: 4 }}>Try adjusting your search filters.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -130,25 +184,22 @@ export default function FeedPage() {
   );
 }
 
-// ─── Data Source Banner ───────────────────────────────────────────────
-function DataBanner({ source, lastRefresh, refreshing, onRefresh, timeSince }: {
-  source: DataSource;
-  lastRefresh: Date | null;
-  refreshing: boolean;
-  onRefresh: () => void;
-  timeSince: (d: Date) => string;
+// ─── Status Banner ────────────────────────────────────────────
+function StatusBanner({ source, lastRefresh, refreshing, progress, onRefresh, timeSince }: {
+  source: DataSource; lastRefresh: Date | null; refreshing: boolean;
+  progress: string; onRefresh: () => void; timeSince: (d: Date) => string;
 }) {
   if (source === 'live') {
     return (
-      <div style={{ margin: '12px 16px 0', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.18)', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ margin: '12px 16px 0', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 8, height: 8, background: '#22c55e', borderRadius: '50%', display: 'inline-block', boxShadow: '0 0 6px #22c55e' }} />
-          <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 700 }}>Live Data</span>
+          <span style={{ width: 7, height: 7, background: '#22c55e', borderRadius: '50%', display: 'inline-block' }} />
+          <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>Live</span>
           {lastRefresh && <span style={{ color: '#636366', fontSize: 12 }}>· {timeSince(lastRefresh)}</span>}
         </div>
         <button type="button" onClick={onRefresh} disabled={refreshing}
-          style={{ color: '#22c55e', fontSize: 12, fontWeight: 600, opacity: refreshing ? 0.5 : 1 }}>
-          {refreshing ? 'Refreshing…' : '↻ Refresh'}
+          style={{ color: '#8E8E93', fontSize: 12, fontWeight: 500, opacity: refreshing ? 0.4 : 1 }}>
+          {refreshing ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
     );
@@ -156,59 +207,52 @@ function DataBanner({ source, lastRefresh, refreshing, onRefresh, timeSince }: {
 
   if (source === 'demo') {
     return (
-      <div style={{ margin: '12px 16px 0', background: 'rgba(234,179,8,0.07)', border: '1px solid rgba(234,179,8,0.2)', borderRadius: 14, padding: '10px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 14 }}>🎭</span>
-            <span style={{ color: '#eab308', fontSize: 13, fontWeight: 700 }}>Demo Mode</span>
-          </div>
-          <a href="/settings" style={{ color: '#eab308', fontSize: 12, fontWeight: 600 }}>Connect →</a>
-        </div>
-        <p style={{ color: '#636366', fontSize: 12, marginTop: 4, lineHeight: 1.4 }}>
-          Showing sample data. Go to <strong style={{ color: '#8E8E93' }}>Settings → Connect Data</strong> to pull real Facebook Marketplace listings.
-        </p>
+      <div style={{ margin: '12px 16px 0', background: '#1C1C1E', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#636366', fontSize: 13 }}>Showing demo listings</span>
+        <a href="/settings" style={{ color: '#8E8E93', fontSize: 12 }}>Connect data →</a>
       </div>
     );
   }
 
   if (source === 'error') {
     return (
-      <div style={{ margin: '12px 16px 0', background: 'rgba(255,69,58,0.07)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 14 }}>⚠️</span>
-          <span style={{ color: '#ff453a', fontSize: 13, fontWeight: 700 }}>Connection error — showing demo data</span>
-        </div>
-        <button type="button" onClick={onRefresh}
-          style={{ color: '#ff453a', fontSize: 12, fontWeight: 600 }}>
-          Retry
-        </button>
+      <div style={{ margin: '12px 16px 0', background: '#1C1C1E', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#636366', fontSize: 13 }}>Showing demo listings</span>
+        <button type="button" onClick={onRefresh} style={{ color: '#8E8E93', fontSize: 12 }}>Retry</button>
       </div>
     );
   }
 
   // loading
   return (
-    <div style={{ margin: '12px 16px 0', background: '#1C1C1E', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ width: 8, height: 8, background: '#3A3A3C', borderRadius: '50%', display: 'inline-block', animation: 'pulse 1s infinite' }} />
-      <span style={{ color: '#636366', fontSize: 13 }}>Checking for live listings…</span>
+    <div style={{ margin: '12px 16px 0', background: '#1C1C1E', borderRadius: 14, padding: '10px 14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ width: 7, height: 7, background: '#636366', borderRadius: '50%', display: 'inline-block' }} />
+        <span style={{ color: '#636366', fontSize: 13 }}>{progress || 'Loading listings…'}</span>
+      </div>
     </div>
   );
 }
 
-// ─── Loading Skeleton ─────────────────────────────────────────────────
-function LoadingSkeleton() {
+// ─── Loading Skeleton ─────────────────────────────────────────
+function LoadingSkeleton({ progress }: { progress: string }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-      {[...Array(6)].map((_, i) => (
-        <div key={i} style={{ background: '#1C1C1E', borderRadius: 16, overflow: 'hidden' }}>
-          <div style={{ height: 130, background: '#2C2C2E' }} />
-          <div style={{ padding: 10 }}>
-            <div style={{ height: 12, background: '#2C2C2E', borderRadius: 6, marginBottom: 8, width: '80%' }} />
-            <div style={{ height: 18, background: '#2C2C2E', borderRadius: 6, marginBottom: 6, width: '60%' }} />
-            <div style={{ height: 10, background: '#2C2C2E', borderRadius: 6, width: '40%' }} />
+    <div>
+      {progress && (
+        <p style={{ color: '#636366', fontSize: 12, textAlign: 'center', marginBottom: 16 }}>{progress}</p>
+      )}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {[...Array(6)].map((_, i) => (
+          <div key={i} style={{ background: '#141414', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ height: 118, background: '#1C1C1E' }} />
+            <div style={{ padding: '10px 11px 12px' }}>
+              <div style={{ height: 11, background: '#1C1C1E', borderRadius: 4, marginBottom: 6, width: '80%' }} />
+              <div style={{ height: 9, background: '#1C1C1E', borderRadius: 4, marginBottom: 12, width: '50%' }} />
+              <div style={{ height: 14, background: '#1C1C1E', borderRadius: 4, width: '70%' }} />
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
