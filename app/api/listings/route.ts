@@ -15,40 +15,67 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
   const { location = 'richmond', maxPrice, maxResults = 1 } = body;
 
-  // Build Facebook Marketplace URL from customer's location
-  // e.g. "Richmond, VA" → "richmond", "New York" → "new-york"
   const citySlug = locationToSlug(location);
   const fbUrl = `https://www.facebook.com/marketplace/${citySlug}/vehicles/`;
 
-  console.log(`[FlipAlert] Scraping: ${fbUrl}`);
+  console.log(`[FlipAlert] Starting async run for: ${fbUrl}`);
 
   try {
-    // timeout=55 keeps us under Vercel's 60s function limit
-    const url = `https://api.apify.com/v2/acts/${ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=55&memory=1024`;
+    // ── Step 1: Start the run (returns immediately with a run ID) ──
+    const startRes = await fetch(
+      `https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${APIFY_TOKEN}&memory=1024`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          urls: [{ url: fbUrl }],
+          getListingDetails: true,
+        }),
+      }
+    );
 
-    // Only send fields the actor definitely supports
-    const input = {
-      urls: [{ url: fbUrl }],
-      getListingDetails: true,
-    };
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(input),
-      signal: AbortSignal.timeout(58_000),
-    });
-
-    const text = await res.text();
-
-    if (!res.ok) {
-      console.error(`[FlipAlert] Apify error ${res.status}:`, text.slice(0, 500));
-      return NextResponse.json({ error: `Apify ${res.status}`, detail: text.slice(0, 300), listings: [], source: 'error' }, { status: 502 });
+    if (!startRes.ok) {
+      const errText = await startRes.text();
+      console.error(`[FlipAlert] Failed to start run ${startRes.status}:`, errText.slice(0, 300));
+      return NextResponse.json({ error: `Apify start ${startRes.status}`, detail: errText.slice(0, 200), listings: [], source: 'error' }, { status: 502 });
     }
 
+    const startData = await startRes.json();
+    const runId: string = startData?.data?.id;
+    if (!runId) {
+      return NextResponse.json({ error: 'No run ID from Apify', listings: [], source: 'error' }, { status: 502 });
+    }
+
+    console.log(`[FlipAlert] Run started: ${runId}`);
+
+    // ── Step 2: Poll until SUCCEEDED or timeout (max 50s) ──
+    const deadline = Date.now() + 50_000;
+    let status = startData?.data?.status as string;
+
+    while (!['SUCCEEDED', 'FAILED', 'ABORTED', 'TIMED-OUT'].includes(status) && Date.now() < deadline) {
+      await sleep(3000);
+      const statusRes = await fetch(
+        `https://api.apify.com/v2/acts/${ACTOR_ID}/runs/${runId}?token=${APIFY_TOKEN}`
+      );
+      const statusData = await statusRes.json();
+      status = statusData?.data?.status ?? 'UNKNOWN';
+      console.log(`[FlipAlert] Run ${runId} status: ${status}`);
+    }
+
+    if (status !== 'SUCCEEDED') {
+      console.error(`[FlipAlert] Run ended with status: ${status}`);
+      return NextResponse.json({ error: `Run ${status}`, listings: [], source: 'error' }, { status: 502 });
+    }
+
+    // ── Step 3: Fetch results ──
+    const itemsRes = await fetch(
+      `https://api.apify.com/v2/actor-runs/${runId}/dataset/items?token=${APIFY_TOKEN}&clean=true`
+    );
     let items: FBListing[] = [];
-    try { items = JSON.parse(text); } catch {
-      return NextResponse.json({ error: 'Invalid JSON from Apify', listings: [], source: 'error' }, { status: 502 });
+    try {
+      items = await itemsRes.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON from Apify dataset', listings: [], source: 'error' }, { status: 502 });
     }
 
     console.log(`[FlipAlert] Got ${items.length} items`);
@@ -65,6 +92,10 @@ export async function POST(req: NextRequest) {
     console.error('[FlipAlert] Error:', msg);
     return NextResponse.json({ error: msg, listings: [], source: 'error' }, { status: 502 });
   }
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // ─── Facebook Marketplace data shape ─────────────────────────
@@ -114,34 +145,26 @@ function normalize(item: FBListing, idx: number) {
 
   const title = item.marketplace_listing_title ?? item.custom_title ?? 'Vehicle';
 
-  // Extract mileage from subtitle e.g. "166K miles" → 166000
   const subtitle = item.custom_titles_with_rendering_flags?.[0]?.subtitle ?? '';
   const mileage = parseMileage(subtitle) ?? 80000;
 
-  // Extract year from title
   const yearMatch = title.match(/\b(19|20)\d{2}\b/);
   const year = yearMatch ? parseInt(yearMatch[0]) : 2016;
 
-  // Extract make
   const make = parseMake(title);
 
-  // Market value estimate
   const multiplier = year >= 2020 ? 1.30 : year >= 2017 ? 1.24 : year >= 2014 ? 1.18 : 1.12;
   const marketValue = Math.round(askingPrice * multiplier);
   const profit = marketValue - askingPrice;
 
-  // Image
   const image = item.primary_listing_photo?.image?.url
     ?? 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=300&fit=crop';
 
-  // Location
   const geo = item.location?.reverse_geocode_detailed ?? item.location?.reverse_geocode;
   const locationStr = geo?.city ?? geo?.postal_code_trimmed ?? '';
 
-  // URL
   const url = item.id ? `https://www.facebook.com/marketplace/item/${item.id}/` : '#';
 
-  // Posted time
   const createdMs = item.creation_time ? item.creation_time * 1000 : Date.now();
   const postedMinutesAgo = Math.max(0, Math.round((Date.now() - createdMs) / 60000));
   const postedAt = item.creation_time_formatted ?? new Date(createdMs).toLocaleString();
@@ -163,7 +186,7 @@ function normalize(item: FBListing, idx: number) {
     postedAt,
     platform: 'Facebook Marketplace',
     url,
-    condition: item.condition?.toLowerCase().includes('used') ? 'fair' : 'fair' as 'good' | 'fair' | 'rough',
+    condition: 'fair' as 'good' | 'fair' | 'rough',
     description: subtitle,
   };
 }
@@ -176,7 +199,6 @@ function parsePrice(item: FBListing): number {
 }
 
 function parseMileage(subtitle: string): number | null {
-  // "166K miles" → 166000, "45,000 miles" → 45000
   const kMatch = subtitle.match(/(\d+\.?\d*)K/i);
   if (kMatch) return Math.round(parseFloat(kMatch[1]) * 1000);
   const numMatch = subtitle.match(/(\d[\d,]+)/);
@@ -186,9 +208,7 @@ function parseMileage(subtitle: string): number | null {
 
 function locationToSlug(location: string): string {
   if (!location) return 'richmond';
-  // "Richmond, VA" → "richmond", "New York, NY" → "new-york"
   const city = location.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-');
-  // Common Facebook city slug overrides
   const overrides: Record<string, string> = {
     'new-york': 'nyc', 'new-york-city': 'nyc',
     'los-angeles': 'la', 'san-francisco': 'sf',
@@ -197,7 +217,7 @@ function locationToSlug(location: string): string {
   return overrides[city] ?? city;
 }
 
-const MAKES = ['Honda','Toyota','Ford','Chevrolet','Chevy','Nissan','Subaru','Jeep','GMC','Dodge','Ram','Hyundai','Kia','Lexus','Mazda','BMW','Mercedes','Audi','Volkswagen','Volvo','Buick','Cadillac','Infiniti','Acura','Mitsubishi','Lincoln','Chrysler','Pontiac','Acura'];
+const MAKES = ['Honda','Toyota','Ford','Chevrolet','Chevy','Nissan','Subaru','Jeep','GMC','Dodge','Ram','Hyundai','Kia','Lexus','Mazda','BMW','Mercedes','Audi','Volkswagen','Volvo','Buick','Cadillac','Infiniti','Acura','Mitsubishi','Lincoln','Chrysler','Pontiac'];
 function parseMake(title: string): string {
   const t = title.toLowerCase();
   for (const m of MAKES) if (t.includes(m.toLowerCase())) return m === 'Chevy' ? 'Chevrolet' : m;
