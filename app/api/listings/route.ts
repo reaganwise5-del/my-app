@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Extend Vercel serverless function timeout to 60s (max on Hobby plan)
+export const maxDuration = 60;
+
 const APIFY_TOKEN = process.env.APIFY_API_KEY ?? process.env.APIFY_API_TOKEN ?? '';
 // curious_coder/facebook-marketplace actor
 const ACTOR_ID = 'Y0QGH7cuqgKtNbEgt';
@@ -15,26 +18,25 @@ export async function POST(req: NextRequest) {
   // Build Facebook Marketplace URL from customer's location
   // e.g. "Richmond, VA" → "richmond", "New York" → "new-york"
   const citySlug = locationToSlug(location);
-  const fbUrl = `https://www.facebook.com/marketplace/${citySlug}/cars/`;
+  const fbUrl = `https://www.facebook.com/marketplace/${citySlug}/vehicles/`;
 
   console.log(`[FlipAlert] Scraping: ${fbUrl}`);
 
   try {
-    const url = `https://api.apify.com/v2/acts/${ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=120&memory=1024`;
+    // timeout=55 keeps us under Vercel's 60s function limit
+    const url = `https://api.apify.com/v2/acts/${ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=55&memory=1024`;
 
+    // Only send fields the actor definitely supports
     const input = {
       urls: [{ url: fbUrl }],
       getListingDetails: true,
-      getAllListingPhotos: false,
-      strictFiltering: false,
-      maxPagesPerUrl: maxResults,
     };
 
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
-      signal: AbortSignal.timeout(125_000),
+      signal: AbortSignal.timeout(58_000),
     });
 
     const text = await res.text();
