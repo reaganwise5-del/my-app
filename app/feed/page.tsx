@@ -85,47 +85,23 @@ export default function FeedPage() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            type="button"
-            onClick={() => setTab('picks')}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 20, fontSize: 14, fontWeight: 700, background: tab === 'picks' ? '#22c55e' : '#1C1C1E', color: tab === 'picks' ? '#000' : '#8E8E93', transition: 'all 0.2s' }}
-          >
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24">
-              <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke={tab === 'picks' ? '#000' : '#8E8E93'} strokeWidth="2" strokeLinejoin="round" />
-            </svg>
-            Top Deals
-            {tab === 'picks' && (
-              <span style={{ background: 'rgba(0,0,0,0.2)', color: '#000', fontSize: 11, fontWeight: 800, padding: '2px 6px', borderRadius: 10 }}>
-                {aiPicks.length}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTab('all')}
-            style={{ padding: '8px 16px', borderRadius: 20, fontSize: 14, fontWeight: 700, background: tab === 'all' ? '#fff' : '#1C1C1E', color: tab === 'all' ? '#000' : '#8E8E93', transition: 'all 0.2s' }}
-          >
-            All Listings
-          </button>
+        <div style={{ display: 'flex', gap: 6, background: '#1C1C1E', borderRadius: 10, padding: 3 }}>
+          {(['picks', 'all'] as Tab[]).map(t => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              style={{ flex: 1, padding: '7px 0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: tab === t ? '#fff' : '#636366', background: tab === t ? '#3A3A3C' : 'transparent', transition: 'all 0.2s' }}
+            >
+              {t === 'picks' ? `Top Deals` : 'All Listings'}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Data source banner */}
       <DataBanner source={source} lastRefresh={lastRefresh} refreshing={refreshing} onRefresh={() => fetchRealListings(false)} timeSince={timeSince} />
 
-      {/* AI Picks description */}
-      {tab === 'picks' && (
-        <div style={{ margin: '4px 16px 0', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 16, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-            <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#22c55e" strokeWidth="2" strokeLinejoin="round" />
-          </svg>
-          <p style={{ color: '#8E8E93', fontSize: 12, lineHeight: 1.4 }}>
-            <span style={{ color: '#22c55e', fontWeight: 700 }}>Top Deals</span> — sorted by profit margin. Cars only, no junk.
-          </p>
-        </div>
-      )}
 
       {/* Feed — 2 column grid */}
       <div style={{ padding: '12px 12px 0' }}>

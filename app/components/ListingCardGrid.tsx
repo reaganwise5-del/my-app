@@ -4,66 +4,69 @@ import Link from 'next/link';
 import { type Listing } from '../lib/mockData';
 
 function timeAgo(minutes: number): string {
-  if (minutes < 60) return `${minutes}m`;
-  return `${Math.floor(minutes / 60)}h`;
+  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 1440) return `${Math.floor(minutes / 60)}h ago`;
+  return `${Math.floor(minutes / 1440)}d ago`;
 }
 
-function getDealBadge(profit: number, askingPrice: number) {
+function getDealTag(profit: number, askingPrice: number) {
   const pct = (profit / askingPrice) * 100;
-  if (pct >= 35) return { label: '🔥 Steal', bg: '#22c55e', color: '#000' };
-  if (pct >= 20) return { label: '✅ Great Deal', bg: '#16a34a', color: '#fff' };
-  if (pct >= 10) return { label: '👍 Good Deal', bg: '#854d0e', color: '#fde68a' };
-  return { label: 'Fair', bg: '#3A3A3C', color: '#adadad' };
+  if (pct >= 35) return { label: 'HOT', color: '#ff6b35' };
+  if (pct >= 20) return { label: 'DEAL', color: '#22c55e' };
+  if (pct >= 10) return { label: 'GOOD', color: '#8E8E93' };
+  return null; // no badge for fair deals
 }
 
 export default function ListingCardGrid({ listing }: { listing: Listing }) {
   const profitPct = Math.round((listing.profit / listing.askingPrice) * 100);
-  const badge = getDealBadge(listing.profit, listing.askingPrice);
+  const tag = getDealTag(listing.profit, listing.askingPrice);
 
   return (
     <Link
       href={`/feed/${listing.id}`}
-      style={{ background: '#1C1C1E', borderRadius: 16, overflow: 'hidden', display: 'block' }}
-      className="active:scale-95 transition-transform"
+      style={{ background: '#141414', borderRadius: 14, overflow: 'hidden', display: 'block', border: '1px solid rgba(255,255,255,0.06)' }}
+      className="active:opacity-80 transition-opacity"
     >
       {/* Image */}
-      <div className="relative">
+      <div style={{ position: 'relative' }}>
         <img
           src={listing.image}
           alt={listing.title}
-          className="w-full h-28 object-cover"
+          style={{ width: '100%', height: 118, objectFit: 'cover', display: 'block' }}
         />
-        {/* Deal badge */}
-        <div style={{ position: 'absolute', top: 8, left: 8, background: badge.bg, color: badge.color, fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 20 }}>
-          {badge.label}
-        </div>
-        {/* Time */}
-        <div className="absolute bottom-1.5 right-2 bg-black/70 text-white text-xs font-semibold px-1.5 py-0.5 rounded-full">
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.55) 100%)' }} />
+
+        {/* Tag — top left, small and clean */}
+        {tag && (
+          <span style={{ position: 'absolute', top: 8, left: 8, color: tag.color, fontSize: 10, fontWeight: 800, letterSpacing: 0.8 }}>
+            {tag.label}
+          </span>
+        )}
+
+        {/* Time — bottom right */}
+        <span style={{ position: 'absolute', bottom: 7, right: 8, color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: 500 }}>
           {timeAgo(listing.postedMinutesAgo)}
-        </div>
+        </span>
       </div>
 
       {/* Info */}
-      <div className="p-3">
-        <p className="text-white font-bold text-xs leading-tight line-clamp-1">{listing.title}</p>
-        <p className="text-zinc-500 text-xs mt-0.5">{(listing.mileage / 1000).toFixed(0)}k mi</p>
+      <div style={{ padding: '10px 11px 12px' }}>
+        <p style={{ color: '#fff', fontWeight: 600, fontSize: 12, lineHeight: 1.3, marginBottom: 2, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+          {listing.title}
+        </p>
+        <p style={{ color: '#636366', fontSize: 11, marginBottom: 10 }}>
+          {(listing.mileage / 1000).toFixed(0)}k mi · {listing.location.split(',')[0]}
+        </p>
 
-        {/* Profit — the big number */}
-        <div style={{ marginTop: 10, background: 'rgba(34,197,94,0.1)', borderRadius: 10, padding: '8px 10px' }}>
-          <p style={{ color: '#22c55e', fontWeight: 800, fontSize: 20, lineHeight: 1 }}>+${listing.profit.toLocaleString()}</p>
-          <p style={{ color: '#636366', fontSize: 11, fontWeight: 600, marginTop: 3 }}>{profitPct}% margin</p>
+        {/* Price row */}
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+          <span style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>${listing.askingPrice.toLocaleString()}</span>
+          <span style={{ color: '#22c55e', fontWeight: 700, fontSize: 13 }}>+${listing.profit.toLocaleString()}</span>
         </div>
 
-        {/* Asking vs KBB */}
-        <div className="mt-2 flex justify-between">
-          <div>
-            <p className="text-zinc-500 text-xs">Ask</p>
-            <p className="text-white font-bold text-xs">${(listing.askingPrice / 1000).toFixed(1)}k</p>
-          </div>
-          <div className="text-right">
-            <p className="text-zinc-500 text-xs">KBB</p>
-            <p className="text-zinc-300 font-bold text-xs">${(listing.marketValue / 1000).toFixed(1)}k</p>
-          </div>
+        {/* Thin profit bar */}
+        <div style={{ marginTop: 7, height: 3, background: '#2C2C2E', borderRadius: 3, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${Math.min(profitPct * 2, 100)}%`, background: profitPct >= 25 ? '#22c55e' : profitPct >= 12 ? '#eab308' : '#636366', borderRadius: 3 }} />
         </div>
       </div>
     </Link>
