@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const url = `https://api.apify.com/v2/acts/${ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=120&memory=1024`;
 
     const input = {
-      startUrls: [{ url: fbUrl }],
+      urls: [{ url: fbUrl }],
       getListingDetails: true,
       getAllListingPhotos: false,
       strictFiltering: false,
