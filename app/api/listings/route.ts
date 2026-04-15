@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const input: Record<string, unknown> = {
       searchQuery,
       maxItems: maxResults,
-      proxyConfiguration: { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'] },
+      proxyConfiguration: { useApifyProxy: true },
     };
 
     if (location) input.location = location;
