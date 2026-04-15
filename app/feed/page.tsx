@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
 import ListingCardGrid from '../components/ListingCardGrid';
@@ -28,6 +28,12 @@ export default function FeedPage() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [searchProgress, setSearchProgress] = useState('');
+
+  // Pull-to-refresh state
+  const [pullY, setPullY] = useState(0);
+  const touchStartY = useRef(0);
+  const isPulling = useRef(false);
+  const PULL_THRESHOLD = 80;
 
   const fetchRealListings = useCallback(async () => {
     setSource('loading');
@@ -130,8 +136,51 @@ export default function FeedPage() {
     return `${Math.floor(mins / 60)}h ago`;
   }
 
+  function onTouchStart(e: React.TouchEvent) {
+    // Only activate pull-to-refresh when scrolled to top
+    if (window.scrollY === 0) {
+      touchStartY.current = e.touches[0].clientY;
+      isPulling.current = true;
+    }
+  }
+
+  function onTouchMove(e: React.TouchEvent) {
+    if (!isPulling.current || refreshing) return;
+    const dy = e.touches[0].clientY - touchStartY.current;
+    if (dy > 0) setPullY(Math.min(dy, PULL_THRESHOLD + 20));
+  }
+
+  function onTouchEnd() {
+    if (pullY >= PULL_THRESHOLD && !refreshing) {
+      fetchRealListings();
+    }
+    setPullY(0);
+    isPulling.current = false;
+  }
+
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#000' }}>
+    <div className="min-h-screen pb-28" style={{ background: '#000' }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Pull to refresh indicator */}
+      {pullY > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: pullY, overflow: 'hidden', transition: 'height 0.1s' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, opacity: pullY / PULL_THRESHOLD }}>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
+              className={pullY >= PULL_THRESHOLD ? 'spinning' : ''}
+              style={{ transform: pullY < PULL_THRESHOLD ? `rotate(${(pullY / PULL_THRESHOLD) * 180}deg)` : undefined }}>
+              <path d="M23 4v6h-6M1 20v-6h6" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span style={{ color: '#636366', fontSize: 13 }}>
+              {pullY >= PULL_THRESHOLD ? 'Release to refresh' : 'Pull to refresh'}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="sticky top-0 z-40 px-5 pt-12 pb-3" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px) saturate(180%)', borderBottom: '0.5px solid rgba(255,255,255,0.08)' }}>
         <div className="flex items-center justify-between mb-4">

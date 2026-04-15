@@ -64,10 +64,20 @@ export default function HomePage() {
   const [modal, setModal] = useState<ModalState>(null);
 
   // Load saved searches from localStorage on mount
+  // Clear old mock data (ids '1','2','3') so only real searches show
   useEffect(() => {
     try {
       const raw = localStorage.getItem('flipalert_searches');
-      if (raw) setSearches(JSON.parse(raw));
+      if (raw) {
+        const parsed: Search[] = JSON.parse(raw);
+        const MOCK_IDS = new Set(['1', '2', '3']);
+        const real = parsed.filter(s => !MOCK_IDS.has(s.id));
+        if (real.length !== parsed.length) {
+          // Had mock data — save cleaned version
+          localStorage.setItem('flipalert_searches', JSON.stringify(real));
+        }
+        setSearches(real);
+      }
     } catch { /* ignore */ }
   }, []);
 
