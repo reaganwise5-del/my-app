@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const APIFY_TOKEN = process.env.APIFY_API_KEY ?? process.env.APIFY_API_TOKEN ?? '';
+// curious_coder/facebook-marketplace actor
+const ACTOR_ID = 'Y0QGH7cuqgKtNbEgt';
 
 export async function POST(req: NextRequest) {
   if (!APIFY_TOKEN) {
@@ -8,35 +10,24 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const { make, model, maxPrice, maxMileage, minYear, location, maxResults = 30 } = body;
+  const { location = 'richmond', maxPrice, maxResults = 1 } = body;
 
-  // Build search query from customer's alert filters
-  let searchQuery = '';
-  if (make && make !== 'Any') searchQuery += make;
-  if (model && model !== 'Any') searchQuery += ` ${model}`;
-  if (!searchQuery.trim()) searchQuery = 'used car';
-  searchQuery = searchQuery.trim();
+  // Build Facebook Marketplace URL from customer's location
+  // e.g. "Richmond, VA" → "richmond", "New York" → "new-york"
+  const citySlug = locationToSlug(location);
+  const fbUrl = `https://www.facebook.com/marketplace/${citySlug}/cars/`;
 
-  console.log(`[FlipAlert] Searching Apify: "${searchQuery}" maxPrice=$${maxPrice} location=${location}`);
+  console.log(`[FlipAlert] Scraping: ${fbUrl}`);
 
   try {
-    // Use run-sync — starts the actor and waits for results in one call
-    const url = `https://api.apify.com/v2/acts/curious_coder~facebook-marketplace/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=120&memory=1024`;
+    const url = `https://api.apify.com/v2/acts/${ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=120&memory=1024`;
 
-    // Build FB Marketplace search URL with filters
-    const fbParams = new URLSearchParams({
-      query: searchQuery,
-      category_id: 'vehicles',
-    });
-    if (maxPrice) fbParams.set('maxPrice', String(maxPrice));
-
-    const fbUrl = `https://www.facebook.com/marketplace/search/?${fbParams.toString()}`;
-
-    const input: Record<string, unknown> = {
+    const input = {
       startUrls: [fbUrl],
       getListingDetails: true,
       getAllListingPhotos: false,
       strictFiltering: false,
+      maxPagesPerUrl: maxResults,
     };
 
     const res = await fetch(url, {
@@ -47,22 +38,22 @@ export async function POST(req: NextRequest) {
     });
 
     const text = await res.text();
-    console.log(`[FlipAlert] Apify status: ${res.status}, body preview: ${text.slice(0, 200)}`);
 
     if (!res.ok) {
-      return NextResponse.json({ error: `Apify ${res.status}: ${text.slice(0, 200)}`, listings: [], source: 'error' }, { status: 502 });
+      console.error(`[FlipAlert] Apify error ${res.status}:`, text.slice(0, 300));
+      return NextResponse.json({ error: `Apify ${res.status}`, listings: [], source: 'error' }, { status: 502 });
     }
 
-    let items: ApifyItem[] = [];
+    let items: FBListing[] = [];
     try { items = JSON.parse(text); } catch {
-      return NextResponse.json({ error: 'Apify returned invalid JSON', listings: [], source: 'error' }, { status: 502 });
+      return NextResponse.json({ error: 'Invalid JSON from Apify', listings: [], source: 'error' }, { status: 502 });
     }
 
-    console.log(`[FlipAlert] Got ${items.length} raw items`);
+    console.log(`[FlipAlert] Got ${items.length} items`);
 
     const listings = items
-      .filter(item => isValidCar(item, maxPrice, maxMileage, minYear))
-      .map((item, idx) => normalize(item, idx, location ?? ''))
+      .filter(item => isValidCar(item, maxPrice))
+      .map((item, idx) => normalize(item, idx))
       .filter(Boolean);
 
     return NextResponse.json({ listings, source: 'live', count: listings.length });
@@ -74,101 +65,143 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// ─── Types ────────────────────────────────────────────────────
-interface ApifyItem {
+// ─── Facebook Marketplace data shape ─────────────────────────
+interface FBListing {
   id?: string;
-  listingId?: string;
-  title?: string;
-  name?: string;
-  price?: number | string;
-  priceAmount?: number;
-  location?: string | { city?: string; state?: string; name?: string };
-  image?: string;
-  thumbnail?: string;
-  images?: string[];
-  photoUrls?: string[];
-  url?: string;
-  listingUrl?: string;
-  description?: string;
-  text?: string;
-  mileage?: number | string;
-  year?: number | string;
-  make?: string;
-  model?: string;
-  postedAt?: string;
-  createdAt?: string;
+  marketplace_listing_title?: string;
+  custom_title?: string;
+  listing_price?: {
+    amount?: string;
+    formatted_amount?: string;
+    currency?: string;
+  };
+  primary_listing_photo?: {
+    image?: { url?: string };
+  };
+  location?: {
+    latitude?: number;
+    longitude?: number;
+    reverse_geocode_detailed?: { postal_code_trimmed?: string; city?: string };
+    reverse_geocode?: { postal_code_trimmed?: string; city?: string };
+  };
+  custom_titles_with_rendering_flags?: Array<{ subtitle?: string }>;
   condition?: string;
+  creation_time?: number;
+  creation_time_formatted?: string;
+  is_sold?: boolean;
+  is_live?: boolean;
 }
 
 // ─── Filter ───────────────────────────────────────────────────
-const JUNK = /\b(boat|atv|trailer|mower|rv|camper|motorcycle|scooter|tractor|jet ski|snowmobile|parts only|salvage|furniture|couch)\b/i;
+const JUNK = /\b(boat|atv|trailer|mower|rv|camper|motorcycle|scooter|tractor|jet ski|snowmobile|parts only|salvage|furniture)\b/i;
 
-function isValidCar(item: ApifyItem, maxPrice?: number, maxMileage?: number, minYear?: number): boolean {
-  const title = item.title ?? item.name ?? '';
+function isValidCar(item: FBListing, maxPrice?: number): boolean {
+  if (item.is_sold) return false;
+  const title = item.marketplace_listing_title ?? item.custom_title ?? '';
   if (JUNK.test(title)) return false;
-  const rawPrice = item.price ?? item.priceAmount;
-  if (!rawPrice) return false;
-  const price = typeof rawPrice === 'string' ? parseInt(rawPrice.replace(/[^0-9]/g, ''), 10) : rawPrice;
+  const price = parsePrice(item);
   if (!price || price < 500) return false;
   if (maxPrice && price > maxPrice) return false;
-  if (maxMileage && item.mileage) {
-    const miles = typeof item.mileage === 'string' ? parseInt(item.mileage.replace(/[^0-9]/g, ''), 10) : item.mileage;
-    if (miles && miles > maxMileage) return false;
-  }
-  if (minYear && item.year) {
-    const yr = typeof item.year === 'string' ? parseInt(item.year, 10) : item.year;
-    if (yr && yr < minYear) return false;
-  }
   return true;
 }
 
-// ─── Normalize ────────────────────────────────────────────────
-function normalize(item: ApifyItem, idx: number, searchLocation: string) {
-  const rawPrice = item.price ?? item.priceAmount ?? 0;
-  const askingPrice = typeof rawPrice === 'string' ? parseInt(rawPrice.replace(/[^0-9]/g, ''), 10) : rawPrice;
-  if (!askingPrice || askingPrice < 500) return null;
+// ─── Normalize FB data → FlipAlert Listing ────────────────────
+function normalize(item: FBListing, idx: number) {
+  const askingPrice = parsePrice(item);
+  if (!askingPrice) return null;
 
-  const mileage = parseMiles(item.mileage) ?? 80000;
-  const year = parseYear(item.year) ?? 2016;
-  const title = item.title ?? item.name ?? 'Vehicle';
+  const title = item.marketplace_listing_title ?? item.custom_title ?? 'Vehicle';
+
+  // Extract mileage from subtitle e.g. "166K miles" → 166000
+  const subtitle = item.custom_titles_with_rendering_flags?.[0]?.subtitle ?? '';
+  const mileage = parseMileage(subtitle) ?? 80000;
+
+  // Extract year from title
+  const yearMatch = title.match(/\b(19|20)\d{2}\b/);
+  const year = yearMatch ? parseInt(yearMatch[0]) : 2016;
+
+  // Extract make
+  const make = parseMake(title);
+
+  // Market value estimate
   const multiplier = year >= 2020 ? 1.30 : year >= 2017 ? 1.24 : year >= 2014 ? 1.18 : 1.12;
   const marketValue = Math.round(askingPrice * multiplier);
   const profit = marketValue - askingPrice;
 
-  let locationStr = searchLocation;
-  if (item.location) {
-    if (typeof item.location === 'string') locationStr = item.location;
-    else { const c = item.location.city ?? item.location.name ?? ''; const s = item.location.state ?? ''; locationStr = s ? `${c}, ${s}` : c || searchLocation; }
-  }
+  // Image
+  const image = item.primary_listing_photo?.image?.url
+    ?? 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=300&fit=crop';
 
-  const image = item.photoUrls?.[0] ?? item.images?.[0] ?? item.thumbnail ?? item.image ?? 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=400&h=300&fit=crop';
-  const url = item.listingUrl ?? item.url ?? '#';
-  const postedAt = item.createdAt ?? item.postedAt ?? new Date().toLocaleString();
-  const postedMinutesAgo = postedAt ? Math.max(0, Math.round((Date.now() - new Date(postedAt).getTime()) / 60000)) : 0;
+  // Location
+  const geo = item.location?.reverse_geocode_detailed ?? item.location?.reverse_geocode;
+  const locationStr = geo?.city ?? geo?.postal_code_trimmed ?? '';
+
+  // URL
+  const url = item.id ? `https://www.facebook.com/marketplace/item/${item.id}/` : '#';
+
+  // Posted time
+  const createdMs = item.creation_time ? item.creation_time * 1000 : Date.now();
+  const postedMinutesAgo = Math.max(0, Math.round((Date.now() - createdMs) / 60000));
+  const postedAt = item.creation_time_formatted ?? new Date(createdMs).toLocaleString();
 
   return {
-    id: item.listingId ?? item.id ?? `live-${idx}-${Date.now()}`,
-    title, year,
-    make: item.make ?? parseMake(title),
-    model: item.model ?? parseModel(title),
-    mileage, askingPrice, marketValue, profit, image,
-    location: locationStr, distance: 0, postedMinutesAgo, postedAt,
-    platform: 'Facebook Marketplace', url,
-    condition: mapCondition(item.condition),
-    description: item.description ?? item.text ?? '',
+    id: item.id ?? `live-${idx}-${Date.now()}`,
+    title,
+    year,
+    make,
+    model: parseModel(title),
+    mileage,
+    askingPrice,
+    marketValue,
+    profit,
+    image,
+    location: locationStr,
+    distance: 0,
+    postedMinutesAgo,
+    postedAt,
+    platform: 'Facebook Marketplace',
+    url,
+    condition: item.condition?.toLowerCase().includes('used') ? 'fair' : 'fair' as 'good' | 'fair' | 'rough',
+    description: subtitle,
   };
 }
 
-function parseMiles(v?: string | number) { if (!v) return null; return typeof v === 'string' ? (parseInt(v.replace(/[^0-9]/g, ''), 10) || null) : v; }
-function parseYear(v?: string | number) { if (!v) return null; return typeof v === 'string' ? (parseInt(v, 10) || null) : v; }
+// ─── Helpers ──────────────────────────────────────────────────
+function parsePrice(item: FBListing): number {
+  const raw = item.listing_price?.amount ?? '';
+  if (!raw) return 0;
+  return Math.round(parseFloat(raw));
+}
 
-const MAKES = ['Honda','Toyota','Ford','Chevrolet','Chevy','Nissan','Subaru','Jeep','GMC','Dodge','Ram','Hyundai','Kia','Lexus','Mazda','BMW','Mercedes','Audi','Volkswagen','Volvo','Buick','Cadillac','Infiniti','Acura','Mitsubishi','Lincoln'];
-function parseMake(t: string) { for (const m of MAKES) if (t.toLowerCase().includes(m.toLowerCase())) return m === 'Chevy' ? 'Chevrolet' : m; return 'Unknown'; }
-function parseModel(t: string) { const p = t.trim().split(/\s+/); return p.length >= 3 ? p.slice(2, 4).join(' ') : ''; }
-function mapCondition(c?: string): 'good' | 'fair' | 'rough' {
-  if (!c) return 'fair';
-  const l = c.toLowerCase();
-  if (l.includes('excellent') || l.includes('like new') || l.includes('good')) return 'good';
-  if (l.includes('poor') || l.includes('rough') || l.includes('salvage')) return 'rough';
-  return 'fair';
+function parseMileage(subtitle: string): number | null {
+  // "166K miles" → 166000, "45,000 miles" → 45000
+  const kMatch = subtitle.match(/(\d+\.?\d*)K/i);
+  if (kMatch) return Math.round(parseFloat(kMatch[1]) * 1000);
+  const numMatch = subtitle.match(/(\d[\d,]+)/);
+  if (numMatch) return parseInt(numMatch[1].replace(/,/g, ''), 10);
+  return null;
+}
+
+function locationToSlug(location: string): string {
+  if (!location) return 'richmond';
+  // "Richmond, VA" → "richmond", "New York, NY" → "new-york"
+  const city = location.split(',')[0].trim().toLowerCase().replace(/\s+/g, '-');
+  // Common Facebook city slug overrides
+  const overrides: Record<string, string> = {
+    'new-york': 'nyc', 'new-york-city': 'nyc',
+    'los-angeles': 'la', 'san-francisco': 'sf',
+    'washington-dc': 'dc', 'washington': 'dc',
+  };
+  return overrides[city] ?? city;
+}
+
+const MAKES = ['Honda','Toyota','Ford','Chevrolet','Chevy','Nissan','Subaru','Jeep','GMC','Dodge','Ram','Hyundai','Kia','Lexus','Mazda','BMW','Mercedes','Audi','Volkswagen','Volvo','Buick','Cadillac','Infiniti','Acura','Mitsubishi','Lincoln','Chrysler','Pontiac','Acura'];
+function parseMake(title: string): string {
+  const t = title.toLowerCase();
+  for (const m of MAKES) if (t.includes(m.toLowerCase())) return m === 'Chevy' ? 'Chevrolet' : m;
+  return 'Unknown';
+}
+function parseModel(title: string): string {
+  const parts = title.trim().split(/\s+/);
+  return parts.length >= 3 ? parts.slice(2, 4).join(' ') : '';
 }
