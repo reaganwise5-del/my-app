@@ -21,16 +21,23 @@ export async function POST(req: NextRequest) {
 
   try {
     // Use run-sync — starts the actor and waits for results in one call
-    const url = `https://api.apify.com/v2/acts/apify~facebook-marketplace-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=120&memory=512`;
+    const url = `https://api.apify.com/v2/acts/curious_coder~facebook-marketplace/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=120&memory=1024`;
+
+    // Build FB Marketplace search URL with filters
+    const fbParams = new URLSearchParams({
+      query: searchQuery,
+      category_id: 'vehicles',
+    });
+    if (maxPrice) fbParams.set('maxPrice', String(maxPrice));
+
+    const fbUrl = `https://www.facebook.com/marketplace/search/?${fbParams.toString()}`;
 
     const input: Record<string, unknown> = {
-      searchQuery,
-      maxItems: maxResults,
-      proxyConfiguration: { useApifyProxy: true },
+      startUrls: [fbUrl],
+      getListingDetails: true,
+      getAllListingPhotos: false,
+      strictFiltering: false,
     };
-
-    if (location) input.location = location;
-    if (maxPrice) input.maxPrice = maxPrice;
 
     const res = await fetch(url, {
       method: 'POST',
