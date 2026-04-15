@@ -26,7 +26,10 @@ export default function FeedPage() {
       const res = await fetch('/api/listings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'used car', maxResults: 50 }),
+        body: JSON.stringify({
+          query: 'used car',
+          maxResults: 40,
+        }),
       });
       const data = await res.json();
 
