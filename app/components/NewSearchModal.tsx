@@ -18,10 +18,12 @@ export default function NewSearchModal({
   onClose,
   editSearch,
   onSave,
+  onAdd,
 }: {
   onClose: () => void;
   editSearch?: Search;
   onSave?: (updated: Search) => void;
+  onAdd?: (newSearch: Search) => void;
 }) {
   const isEditing = !!editSearch;
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -82,6 +84,7 @@ export default function NewSearchModal({
         zipCode: location,
         radius: Number(radius),
         make: anyMake ? 'Any' : (selectedMakes.size === 1 ? [...selectedMakes][0] : 'Any'),
+        model: anyMake ? 'Any' : 'Any',
         minYear: minYear ? Number(minYear) : editSearch.minYear,
         maxYear: maxYear ? Number(maxYear) : editSearch.maxYear,
         maxMileage: maxMileage ? Number(maxMileage) : editSearch.maxMileage,
@@ -89,6 +92,22 @@ export default function NewSearchModal({
       });
       onClose();
     } else {
+      // Build the new search object and pass it back to the parent
+      const newSearch: Search = {
+        id: String(Date.now()),
+        name: name.trim(),
+        zipCode: location,
+        radius: Number(radius),
+        make: anyMake ? 'Any' : (selectedMakes.size === 1 ? [...selectedMakes][0] : 'Any'),
+        model: 'Any',
+        minYear: minYear ? Number(minYear) : 2010,
+        maxYear: maxYear ? Number(maxYear) : new Date().getFullYear(),
+        maxMileage: maxMileage ? Number(maxMileage) : 150000,
+        maxPrice: maxPrice ? Number(maxPrice) : 30000,
+        active: true,
+        alertsToday: 0,
+      };
+      onAdd?.(newSearch);
       setSaved(true);
     }
   }

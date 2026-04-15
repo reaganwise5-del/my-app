@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Logo from './components/Logo';
 import BottomNav from './components/BottomNav';
 import NewSearchModal from './components/NewSearchModal';
 import Toggle from './components/Toggle';
-import { mockSearches, type Search } from './lib/mockData';
+import { type Search } from './lib/mockData';
 
 type ModalState = { mode: 'new' } | { mode: 'edit'; search: Search } | null;
 
@@ -60,8 +60,16 @@ function ActiveSearchCard({ search, onToggle, onEdit }: { search: Search; onTogg
 }
 
 export default function HomePage() {
-  const [searches, setSearches] = useState<Search[]>(mockSearches);
+  const [searches, setSearches] = useState<Search[]>([]);
   const [modal, setModal] = useState<ModalState>(null);
+
+  // Load saved searches from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('flipalert_searches');
+      if (raw) setSearches(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
 
   // Persist searches to localStorage so the feed page can read them
   function persist(updated: Search[]) {
@@ -75,6 +83,10 @@ export default function HomePage() {
 
   function saveSearch(updated: Search) {
     persist(searches.map(s => s.id === updated.id ? updated : s));
+  }
+
+  function addSearch(newSearch: Search) {
+    persist([...searches, newSearch]);
   }
 
   const activeCount = searches.filter(s => s.active).length;
@@ -132,9 +144,19 @@ export default function HomePage() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {searches.map((search) => (
-            <ActiveSearchCard key={search.id} search={search} onToggle={toggleSearch} onEdit={s => setModal({ mode: 'edit', search: s })} />
-          ))}
+          {searches.length === 0 ? (
+            <div style={{ background: '#141414', borderRadius: 14, padding: '28px 20px', textAlign: 'center', border: '1px dashed rgba(255,255,255,0.08)' }}>
+              <p style={{ color: '#636366', fontSize: 14, marginBottom: 12 }}>No alerts yet</p>
+              <button type="button" onClick={() => setModal({ mode: 'new' })}
+                style={{ background: '#22c55e', color: '#000', fontWeight: 700, fontSize: 14, padding: '10px 20px', borderRadius: 20 }}>
+                + Create your first alert
+              </button>
+            </div>
+          ) : (
+            searches.map((search) => (
+              <ActiveSearchCard key={search.id} search={search} onToggle={toggleSearch} onEdit={s => setModal({ mode: 'edit', search: s })} />
+            ))
+          )}
         </div>
 
         {/* Slots */}
@@ -150,7 +172,7 @@ export default function HomePage() {
       </div>
 
       <BottomNav />
-      {modal?.mode === 'new' && <NewSearchModal onClose={() => setModal(null)} />}
+      {modal?.mode === 'new' && <NewSearchModal onClose={() => setModal(null)} onAdd={addSearch} />}
       {modal?.mode === 'edit' && (
         <NewSearchModal
           onClose={() => setModal(null)}
