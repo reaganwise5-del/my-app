@@ -137,7 +137,7 @@ export default function HomePage() {
             </svg>
           </div>
           <div>
-            <p style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>AI Picks</p>
+            <p style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>Top Deals</p>
             <p style={{ color: '#8E8E93', fontSize: 12 }}>Best flips now</p>
           </div>
         </Link>

@@ -118,7 +118,7 @@ export default function ListingDetailPage() {
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
             <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#22c55e" strokeWidth="2" strokeLinejoin="round" />
           </svg>
-          <span style={{ color: '#22c55e', fontWeight: 700, fontSize: 15 }}>Evaluate with AI</span>
+          <span style={{ color: '#22c55e', fontWeight: 700, fontSize: 15 }}>Get Full Breakdown</span>
         </button>
 
         {/* Details */}
@@ -161,9 +161,9 @@ export default function ListingDetailPage() {
                 <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#22c55e" strokeWidth="2" strokeLinejoin="round" />
               </svg>
             </div>
-            <p style={{ color: '#fff', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>AI Deal Evaluation</p>
+            <p style={{ color: '#fff', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Full Deal Breakdown</p>
             <p style={{ color: '#8E8E93', fontSize: 14, lineHeight: 1.6, marginBottom: 28 }}>
-              AI will analyze the photo, description, price, and market data to give you a full breakdown — best case, worst case, risks, and a flip strategy. Coming at launch.
+              We'll break down the photo, description, price history, and comparable sales — best case profit, what to watch out for, and whether it's actually worth your time. Coming at launch.
             </p>
             <button type="button" onClick={() => setAiOpen(false)} style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontWeight: 600, fontSize: 17, padding: '14px 0', borderRadius: 14 }}>
               Got it

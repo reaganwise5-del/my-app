@@ -94,7 +94,7 @@ export default function FeedPage() {
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24">
               <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke={tab === 'picks' ? '#000' : '#8E8E93'} strokeWidth="2" strokeLinejoin="round" />
             </svg>
-            AI Picks
+            Top Deals
             {tab === 'picks' && (
               <span style={{ background: 'rgba(0,0,0,0.2)', color: '#000', fontSize: 11, fontWeight: 800, padding: '2px 6px', borderRadius: 10 }}>
                 {aiPicks.length}
@@ -122,7 +122,7 @@ export default function FeedPage() {
             <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#22c55e" strokeWidth="2" strokeLinejoin="round" />
           </svg>
           <p style={{ color: '#8E8E93', fontSize: 12, lineHeight: 1.4 }}>
-            <span style={{ color: '#22c55e', fontWeight: 700 }}>AI Picks</span> — highest margin flips in your area. Cars only. No junk.
+            <span style={{ color: '#22c55e', fontWeight: 700 }}>Top Deals</span> — sorted by profit margin. Cars only, no junk.
           </p>
         </div>
       )}
