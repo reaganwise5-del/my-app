@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const url = `https://api.apify.com/v2/acts/${ACTOR_ID}/run-sync-get-dataset-items?token=${APIFY_TOKEN}&timeout=120&memory=1024`;
 
     const input = {
-      startUrls: [fbUrl],
+      startUrls: [{ url: fbUrl }],
       getListingDetails: true,
       getAllListingPhotos: false,
       strictFiltering: false,
@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
     const text = await res.text();
 
     if (!res.ok) {
-      console.error(`[FlipAlert] Apify error ${res.status}:`, text.slice(0, 300));
-      return NextResponse.json({ error: `Apify ${res.status}`, listings: [], source: 'error' }, { status: 502 });
+      console.error(`[FlipAlert] Apify error ${res.status}:`, text.slice(0, 500));
+      return NextResponse.json({ error: `Apify ${res.status}`, detail: text.slice(0, 300), listings: [], source: 'error' }, { status: 502 });
     }
 
     let items: FBListing[] = [];
