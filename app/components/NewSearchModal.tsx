@@ -109,6 +109,22 @@ export default function NewSearchModal({
       };
       onAdd?.(newSearch);
       setSaved(true);
+
+      // Kick off Apify immediately in the background — don't wait for the feed page
+      fetch('/api/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          make: newSearch.make,
+          model: newSearch.model,
+          maxPrice: newSearch.maxPrice,
+          maxMileage: newSearch.maxMileage,
+          minYear: newSearch.minYear,
+          location: newSearch.zipCode,
+          radius: newSearch.radius,
+          maxResults: 30,
+        }),
+      }).catch(() => { /* silently ignore — feed page will retry */ });
     }
   }
 
