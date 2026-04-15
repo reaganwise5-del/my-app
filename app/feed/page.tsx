@@ -136,13 +136,28 @@ export default function FeedPage() {
       <div className="sticky top-0 z-40 px-5 pt-12 pb-3" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px) saturate(180%)', borderBottom: '0.5px solid rgba(255,255,255,0.08)' }}>
         <div className="flex items-center justify-between mb-4">
           <Logo size="sm" />
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
-            style={{ background: '#1C1C1E', color: '#fff', fontWeight: 600, fontSize: 13, padding: '7px 14px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            + New Alert
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* Refresh button — always visible */}
+            <button
+              type="button"
+              onClick={fetchRealListings}
+              disabled={refreshing}
+              style={{ width: 34, height: 34, background: '#1C1C1E', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.08)', opacity: refreshing ? 0.4 : 1 }}
+            >
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
+                className={refreshing ? 'spinning' : ''}>
+                <path d="M23 4v6h-6M1 20v-6h6" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              style={{ background: '#1C1C1E', color: '#fff', fontWeight: 600, fontSize: 13, padding: '7px 14px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              + New Alert
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}

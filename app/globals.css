@@ -34,3 +34,12 @@ body {
 .pb-safe {
   padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
 }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 0.8s linear infinite;
+}
