@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // ── Step 1: Start the run (returns immediately with a run ID) ──
+    // Send both urls (required by schema) AND startUrls (what actually populates the crawl queue)
     const startRes = await fetch(
       `https://api.apify.com/v2/acts/${ACTOR_ID}/runs?token=${APIFY_TOKEN}&memory=1024`,
       {
@@ -29,7 +30,9 @@ export async function POST(req: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           urls: [{ url: fbUrl }],
+          startUrls: [{ url: fbUrl }],
           getListingDetails: true,
+          getAllListingPhotos: false,
         }),
       }
     );
