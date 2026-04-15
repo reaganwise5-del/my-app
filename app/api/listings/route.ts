@@ -16,9 +16,10 @@ export async function POST(req: NextRequest) {
   const { location = 'richmond', maxPrice, maxResults = 1 } = body;
 
   const citySlug = locationToSlug(location);
-  const fbUrl = `https://www.facebook.com/marketplace/${citySlug}/vehicles/`;
+  // TEST: force Richmond so we're hitting a URL we know returns results
+  const fbUrl = `https://www.facebook.com/marketplace/richmond/vehicles/`;
 
-  console.log(`[FlipAlert] Starting async run for: ${fbUrl}`);
+  console.log(`[FlipAlert] Starting async run for: ${fbUrl} (slug was: ${citySlug})`);
 
   try {
     // ── Step 1: Start the run (returns immediately with a run ID) ──
