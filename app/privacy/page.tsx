@@ -4,19 +4,19 @@ import { useRouter } from 'next/navigation';
 export default function PrivacyPage() {
   const router = useRouter();
   return (
-    <div style={{ background: '#000', minHeight: '100vh', padding: '0 0 60px', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
+    <div style={{ background: '#FAF8F5', minHeight: '100vh', padding: '0 0 60px', color: '#1A1A2E', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       {/* Back header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '56px 16px 12px', position: 'sticky', top: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '0.5px solid rgba(255,255,255,0.08)', zIndex: 10 }}>
-        <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#22c55e', fontSize: 17, background: 'none', padding: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '56px 16px 12px', position: 'sticky', top: 0, background: 'rgba(250,248,245,0.90)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '0.5px solid rgba(26,26,46,0.08)', zIndex: 10 }}>
+        <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8601C', fontSize: 17, background: 'none', padding: 0 }}>
           <svg width="10" height="17" fill="none" viewBox="0 0 10 17">
-            <path d="M9 1L1 8.5 9 16" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 1L1 8.5 9 16" stroke="#E8601C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Settings
         </button>
       </div>
       <div style={{ padding: '24px 20px 0' }}>
       <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 6, letterSpacing: -0.5 }}>Privacy Policy</h1>
-      <p style={{ color: '#8E8E93', fontSize: 13, marginBottom: 32 }}>Last updated: April 11, 2026</p>
+      <p style={{ color: '#9B9490', fontSize: 13, marginBottom: 32 }}>Last updated: April 11, 2026</p>
 
       {[
         {
@@ -65,8 +65,8 @@ export default function PrivacyPage() {
         },
       ].map(section => (
         <div key={section.title} style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, color: '#fff' }}>{section.title}</h2>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: '#8E8E93' }}>{section.body}</p>
+          <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, color: '#1A1A2E' }}>{section.title}</h2>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: '#9B9490' }}>{section.body}</p>
         </div>
       ))}
       </div>

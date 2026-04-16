@@ -92,7 +92,6 @@ export default function NewSearchModal({
       });
       onClose();
     } else {
-      // Build the new search object and pass it back to the parent
       const newSearch: Search = {
         id: String(Date.now()),
         name: name.trim(),
@@ -130,11 +129,22 @@ export default function NewSearchModal({
 
   const makeSummary = anyMake ? 'Any Cars & Trucks' : `${selectedMakes.size} makes selected`;
 
+  const inputStyle = {
+    width: '100%',
+    background: '#fff',
+    border: '1px solid rgba(26,26,46,0.12)',
+    color: '#1A1A2E',
+    borderRadius: 12,
+    padding: '12px 16px',
+    fontSize: 14,
+    outline: 'none',
+  } as React.CSSProperties;
+
   return (
     <div className="fixed inset-0 z-50 flex items-end" style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
       <div
         ref={sheetRef}
-        style={{ background: '#1C1C1E', borderRadius: '20px 20px 0 0', width: '100%', maxHeight: '92vh', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s ease', willChange: 'transform', position: 'relative', overflow: 'hidden' }}
+        style={{ background: '#FAF8F5', borderRadius: '20px 20px 0 0', width: '100%', maxHeight: '92vh', display: 'flex', flexDirection: 'column', transition: 'transform 0.15s ease', willChange: 'transform', position: 'relative', overflow: 'hidden' }}
       >
         {/* Drag handle */}
         <div
@@ -144,15 +154,15 @@ export default function NewSearchModal({
           onTouchEnd={onTouchEnd}
           style={{ cursor: 'grab' }}
         >
-          <div style={{ width: 36, height: 5, background: '#3A3A3C', borderRadius: 3 }} />
+          <div style={{ width: 36, height: 5, background: '#E0D9D0', borderRadius: 3 }} />
         </div>
 
-        <div className="px-5 pt-2 pb-3" style={{ borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
+        <div className="px-5 pt-2 pb-3" style={{ borderBottom: '0.5px solid rgba(26,26,46,0.08)' }}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-white font-black text-xl">{isEditing ? 'Edit Search' : 'New Alert Search'}</h2>
-            <button type="button" onClick={onClose} style={{ width: 30, height: 30, background: '#3A3A3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <h2 style={{ color: '#1A1A2E', fontWeight: 900, fontSize: 20 }}>{isEditing ? 'Edit Search' : 'New Alert Search'}</h2>
+            <button type="button" onClick={onClose} style={{ width: 30, height: 30, background: '#F0ECE7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                <path d="M6 18L18 6M6 6l12 12" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" />
+                <path d="M6 18L18 6M6 6l12 12" stroke="#6B6560" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
           </div>
@@ -161,14 +171,17 @@ export default function NewSearchModal({
           <div className="flex items-center gap-1.5">
             {STEPS.map((s, i) => (
               <div key={s} className="flex items-center gap-1.5">
-                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-colors ${
-                  i === step ? 'bg-green-500 text-black' :
-                  i < step ? 'bg-green-500/20 text-green-400' :
-                  'bg-zinc-800 text-zinc-600'
-                }`}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 4,
+                  padding: '4px 10px', borderRadius: 999, fontSize: 12, fontWeight: 700,
+                  background: i === step ? '#E8601C' : i < step ? 'rgba(232,96,28,0.12)' : '#F0ECE7',
+                  color: i === step ? '#fff' : i < step ? '#E8601C' : '#9B9490',
+                }}>
                   {i < step ? '✓' : i + 1} {i === step ? s : ''}
                 </div>
-                {i < STEPS.length - 1 && <div className={`h-px w-3 ${i < step ? 'bg-green-500/40' : 'bg-zinc-800'}`} />}
+                {i < STEPS.length - 1 && (
+                  <div style={{ height: 1, width: 12, background: i < step ? 'rgba(232,96,28,0.3)' : '#E0D9D0' }} />
+                )}
               </div>
             ))}
           </div>
@@ -181,29 +194,34 @@ export default function NewSearchModal({
           {step === 0 && (
             <div className="space-y-5">
               <div>
-                <p className="text-white font-black text-lg mb-1">Where are you searching?</p>
-                <p className="text-zinc-500 text-sm">Name your search and pick your area.</p>
+                <p style={{ color: '#1A1A2E', fontWeight: 900, fontSize: 18, marginBottom: 4 }}>Where are you searching?</p>
+                <p style={{ color: '#9B9490', fontSize: 14 }}>Name your search and pick your area.</p>
               </div>
               <div>
-                <label className="text-zinc-400 text-sm font-semibold block mb-2">Search Name</label>
-                <input type="text" placeholder='e.g. "Dallas Car Search"'
-                  value={name} onChange={e => setName(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500" />
+                <label style={{ color: '#6B6560', fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 8 }}>Search Name</label>
+                <input
+                  type="text"
+                  placeholder='e.g. "Dallas Car Search"'
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  style={{ ...inputStyle }}
+                />
               </div>
               <div>
-                <label className="text-zinc-400 text-sm font-semibold block mb-2">City / Location</label>
+                <label style={{ color: '#6B6560', fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 8 }}>City / Location</label>
                 <LocationInput value={location} onChange={setLocation} placeholder="City, State or Zip Code" />
               </div>
               <div>
-                <label className="text-zinc-400 text-sm font-semibold block mb-2">Search Radius</label>
+                <label style={{ color: '#6B6560', fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 8 }}>Search Radius</label>
                 <div className="grid grid-cols-3 gap-2">
                   {['10','25','50','75','100','150'].map(r => (
                     <button key={r} type="button" onClick={() => setRadius(r)}
-                      className={`py-2.5 rounded-xl text-sm font-bold border transition-colors ${
-                        radius === r
-                          ? 'bg-green-500/15 border-green-500/50 text-green-400'
-                          : 'bg-zinc-900 border-zinc-700 text-zinc-400'
-                      }`}>
+                      style={{
+                        padding: '10px 0', borderRadius: 12, fontSize: 14, fontWeight: 700,
+                        background: radius === r ? 'rgba(232,96,28,0.10)' : '#fff',
+                        border: radius === r ? '1px solid rgba(232,96,28,0.35)' : '1px solid rgba(26,26,46,0.10)',
+                        color: radius === r ? '#E8601C' : '#6B6560',
+                      }}>
                       {r} mi
                     </button>
                   ))}
@@ -216,26 +234,32 @@ export default function NewSearchModal({
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <p className="text-white font-black text-lg mb-1">Which makes?</p>
-                <p className="text-zinc-500 text-sm">Select all, or tap to deselect ones you don't want.</p>
+                <p style={{ color: '#1A1A2E', fontWeight: 900, fontSize: 18, marginBottom: 4 }}>Which makes?</p>
+                <p style={{ color: '#9B9490', fontSize: 14 }}>Select all, or tap to deselect ones you don't want.</p>
               </div>
               <button type="button" onClick={() => { setAnyMake(!anyMake); if (!anyMake) setSelectedMakes(new Set(ALL_MAKES)); }}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-bold transition-colors ${
-                  anyMake ? 'bg-green-500/15 border-green-500/40 text-green-400' : 'bg-zinc-800 border-zinc-700 text-zinc-400'
-                }`}>
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+                  background: anyMake ? 'rgba(232,96,28,0.10)' : '#F5F3F0',
+                  border: anyMake ? '1px solid rgba(232,96,28,0.3)' : '1px solid rgba(26,26,46,0.10)',
+                  color: anyMake ? '#E8601C' : '#6B6560',
+                }}>
                 <span>{anyMake ? '✓ Any Cars & Trucks' : 'Custom selection'}</span>
-                <span className="text-zinc-600 text-xs">{anyMake ? 'tap to filter' : 'tap to reset'}</span>
+                <span style={{ color: '#9B9490', fontSize: 12 }}>{anyMake ? 'tap to filter' : 'tap to reset'}</span>
               </button>
 
               <div className="flex flex-wrap gap-2">
                 {ALL_MAKES.map(make => (
                   <button key={make} type="button"
                     onClick={() => { setAnyMake(false); toggleMake(make); }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                      selectedMakes.has(make)
-                        ? 'bg-zinc-700 border-zinc-600 text-white'
-                        : 'bg-transparent border-zinc-800 text-zinc-600 line-through'
-                    }`}>
+                    style={{
+                      padding: '6px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                      background: selectedMakes.has(make) ? '#F0ECE7' : 'transparent',
+                      border: selectedMakes.has(make) ? '1px solid rgba(26,26,46,0.12)' : '1px solid rgba(26,26,46,0.08)',
+                      color: selectedMakes.has(make) ? '#1A1A2E' : '#C0B9B2',
+                      textDecoration: selectedMakes.has(make) ? 'none' : 'line-through',
+                    }}>
                     {make}
                   </button>
                 ))}
@@ -247,46 +271,46 @@ export default function NewSearchModal({
           {step === 2 && (
             <div className="space-y-5">
               <div>
-                <p className="text-white font-black text-lg mb-1">Set your filters</p>
-                <p className="text-zinc-500 text-sm">Leave blank for no limit.</p>
+                <p style={{ color: '#1A1A2E', fontWeight: 900, fontSize: 18, marginBottom: 4 }}>Set your filters</p>
+                <p style={{ color: '#9B9490', fontSize: 14 }}>Leave blank for no limit.</p>
               </div>
 
               <div>
-                <label className="text-zinc-400 text-sm font-semibold block mb-2">Year Range</label>
+                <label style={{ color: '#6B6560', fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 8 }}>Year Range</label>
                 <div className="grid grid-cols-2 gap-3">
                   <input type="number" placeholder="Min year" value={minYear} onChange={e => setMinYear(e.target.value)}
-                    className="bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500" />
+                    style={{ ...inputStyle, width: undefined }} />
                   <input type="number" placeholder="Max year" value={maxYear} onChange={e => setMaxYear(e.target.value)}
-                    className="bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500" />
+                    style={{ ...inputStyle, width: undefined }} />
                 </div>
               </div>
 
               <div>
-                <label className="text-zinc-400 text-sm font-semibold block mb-2">Max Mileage</label>
+                <label style={{ color: '#6B6560', fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 8 }}>Max Mileage</label>
                 <input type="number" placeholder="Any mileage" value={maxMileage} onChange={e => setMaxMileage(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500" />
+                  style={{ ...inputStyle }} />
               </div>
 
               <div>
-                <label className="text-zinc-400 text-sm font-semibold block mb-2">Price Range</label>
+                <label style={{ color: '#6B6560', fontSize: 14, fontWeight: 600, display: 'block', marginBottom: 8 }}>Price Range</label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">$</span>
+                    <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9490', fontSize: 14 }}>$</span>
                     <input type="number" placeholder="Min" value={minPrice} onChange={e => setMinPrice(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl pl-8 pr-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500" />
+                      style={{ ...inputStyle, width: undefined, paddingLeft: 28 }} />
                   </div>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">$</span>
+                    <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9490', fontSize: 14 }}>$</span>
                     <input type="number" placeholder="Max" value={maxPrice} onChange={e => setMaxPrice(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl pl-8 pr-4 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500" />
+                      style={{ ...inputStyle, width: undefined, paddingLeft: 28 }} />
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3.5">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F5F3F0', border: '1px solid rgba(26,26,46,0.08)', borderRadius: 12, padding: '14px 16px' }}>
                 <div>
-                  <p className="text-white font-semibold text-sm">Block Salvage Vehicles</p>
-                  <p className="text-zinc-500 text-xs mt-0.5">Hide rebuilt/salvage title listings</p>
+                  <p style={{ color: '#1A1A2E', fontWeight: 600, fontSize: 14 }}>Block Salvage Vehicles</p>
+                  <p style={{ color: '#9B9490', fontSize: 12, marginTop: 2 }}>Hide rebuilt/salvage title listings</p>
                 </div>
                 <Toggle active={blockSalvage} onToggle={() => setBlockSalvage(!blockSalvage)} />
               </div>
@@ -297,11 +321,11 @@ export default function NewSearchModal({
           {step === 3 && (
             <div className="space-y-4">
               <div>
-                <p className="text-white font-black text-lg mb-1">{isEditing ? 'Review changes' : 'Ready to launch'}</p>
-                <p className="text-zinc-500 text-sm">{isEditing ? 'Confirm your updated settings.' : 'Review your search before going live.'}</p>
+                <p style={{ color: '#1A1A2E', fontWeight: 900, fontSize: 18, marginBottom: 4 }}>{isEditing ? 'Review changes' : 'Ready to launch'}</p>
+                <p style={{ color: '#9B9490', fontSize: 14 }}>{isEditing ? 'Confirm your updated settings.' : 'Review your search before going live.'}</p>
               </div>
 
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3">
+              <div style={{ background: '#F5F3F0', border: '1px solid rgba(26,26,46,0.08)', borderRadius: 16, padding: 16 }}>
                 {[
                   { label: 'Search Name', value: name },
                   { label: 'Location', value: `${location} · ${radius} mi radius` },
@@ -311,19 +335,19 @@ export default function NewSearchModal({
                   { label: 'Price', value: minPrice || maxPrice ? `$${minPrice || '0'} – $${maxPrice || '∞'}` : 'Any' },
                   { label: 'Block Salvage', value: blockSalvage ? 'Yes' : 'No' },
                 ].map(row => (
-                  <div key={row.label} className="flex justify-between items-center py-1 border-b border-zinc-800/50 last:border-0">
-                    <span className="text-zinc-500 text-sm">{row.label}</span>
-                    <span className="text-white text-sm font-semibold">{row.value}</span>
+                  <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '0.5px solid rgba(26,26,46,0.08)' }} className="last:border-0">
+                    <span style={{ color: '#9B9490', fontSize: 14 }}>{row.label}</span>
+                    <span style={{ color: '#1A1A2E', fontSize: 14, fontWeight: 600 }}>{row.value}</span>
                   </div>
                 ))}
               </div>
 
               {!isEditing && (
-                <div className="flex items-center gap-2 bg-green-500/8 border border-green-500/20 rounded-xl px-4 py-3">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(232,96,28,0.08)', border: '1px solid rgba(232,96,28,0.15)', borderRadius: 12, padding: '12px 16px' }}>
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                    <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#22c55e" strokeWidth="2" strokeLinejoin="round" />
+                    <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#E8601C" strokeWidth="2" strokeLinejoin="round" />
                   </svg>
-                  <p className="text-green-400 text-xs font-semibold">Alerts go live instantly — under 5 min from posting</p>
+                  <p style={{ color: '#C44B0F', fontSize: 12, fontWeight: 600 }}>Alerts go live instantly — under 5 min from posting</p>
                 </div>
               )}
             </div>
@@ -332,20 +356,20 @@ export default function NewSearchModal({
 
         {/* Success state overlay */}
         {saved && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center" style={{ background: '#1C1C1E', borderRadius: '20px 20px 0 0', zIndex: 10 }}>
-            <div style={{ width: 72, height: 72, background: 'rgba(34,197,94,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center" style={{ background: '#FAF8F5', borderRadius: '20px 20px 0 0', zIndex: 10 }}>
+            <div style={{ width: 72, height: 72, background: 'rgba(232,96,28,0.12)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
               <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
-                <path d="M20 6L9 17l-5-5" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M20 6L9 17l-5-5" stroke="#E8601C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <p style={{ color: '#fff', fontWeight: 800, fontSize: 22, marginBottom: 8 }}>Alert is Live!</p>
-            <p style={{ color: '#8E8E93', fontSize: 14, lineHeight: 1.6, marginBottom: 32 }}>
-              <span style={{ color: '#22c55e', fontWeight: 700 }}>"{name}"</span> is now active. You'll get notified within minutes when a matching deal is posted.
+            <p style={{ color: '#1A1A2E', fontWeight: 800, fontSize: 22, marginBottom: 8 }}>Alert is Live!</p>
+            <p style={{ color: '#6B6560', fontSize: 14, lineHeight: 1.6, marginBottom: 32 }}>
+              <span style={{ color: '#E8601C', fontWeight: 700 }}>"{name}"</span> is now active. You'll get notified within minutes when a matching deal is posted.
             </p>
             <button
               type="button"
               onClick={onClose}
-              style={{ width: '100%', background: '#22c55e', color: '#000', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}
+              style={{ width: '100%', background: '#E8601C', color: '#fff', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}
             >
               Done
             </button>
@@ -353,26 +377,26 @@ export default function NewSearchModal({
         )}
 
         {/* Navigation buttons */}
-        <div className="px-5 pt-3 flex gap-3 safe-bottom" style={{ borderTop: '0.5px solid rgba(255,255,255,0.1)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
+        <div className="px-5 pt-3 flex gap-3 safe-bottom" style={{ borderTop: '0.5px solid rgba(26,26,46,0.08)', background: '#FAF8F5', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)' }}>
           {step > 0 ? (
             <button type="button" onClick={() => setStep(s => s - 1)}
-              className="flex-1 bg-zinc-800 text-zinc-300 font-bold py-4 rounded-xl text-sm">
+              style={{ flex: 1, background: '#F0ECE7', color: '#6B6560', fontWeight: 700, padding: '16px 0', borderRadius: 12, fontSize: 14 }}>
               Previous
             </button>
           ) : (
             <button type="button" onClick={onClose}
-              className="flex-1 bg-zinc-800 text-zinc-300 font-bold py-4 rounded-xl text-sm">
+              style={{ flex: 1, background: '#F0ECE7', color: '#6B6560', fontWeight: 700, padding: '16px 0', borderRadius: 12, fontSize: 14 }}>
               Cancel
             </button>
           )}
           {step < STEPS.length - 1 ? (
             <button type="button" onClick={() => setStep(s => s + 1)} disabled={!canNext()}
-              className="flex-1 bg-green-500 hover:bg-green-400 disabled:opacity-40 text-black font-black py-4 rounded-xl text-sm transition-colors">
+              style={{ flex: 1, background: '#E8601C', color: '#fff', fontWeight: 900, padding: '16px 0', borderRadius: 12, fontSize: 14, boxShadow: '0 2px 10px rgba(232,96,28,0.30)', opacity: canNext() ? 1 : 0.4 }}>
               Next
             </button>
           ) : (
             <button type="button" onClick={handleSave}
-              className="flex-1 bg-green-500 hover:bg-green-400 text-black font-black py-4 rounded-xl text-sm transition-colors">
+              style={{ flex: 1, background: '#E8601C', color: '#fff', fontWeight: 900, padding: '16px 0', borderRadius: 12, fontSize: 14, boxShadow: '0 2px 10px rgba(232,96,28,0.30)' }}>
               {isEditing ? 'Save Changes' : 'Start Alert'}
             </button>
           )}

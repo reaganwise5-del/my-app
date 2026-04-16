@@ -44,48 +44,48 @@ function LogSaleSheet({ car, onClose, onSave }: {
   const estProfit = sellPrice ? Number(sellPrice) - car.buyPrice - Number(expenses || 0) : null;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ background: '#1C1C1E', borderRadius: '20px 20px 0 0', width: '100%', padding: '0 0 40px', maxHeight: '90vh', overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
+      <div style={{ background: '#FAF8F5', borderRadius: '20px 20px 0 0', width: '100%', padding: '0 0 40px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 5, background: '#3A3A3C', borderRadius: 3 }} />
+          <div style={{ width: 36, height: 5, background: '#E0D9D0', borderRadius: 3 }} />
         </div>
         <div style={{ padding: '8px 20px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-            <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 20 }}>Log Sale</h2>
-            <button type="button" onClick={onClose} style={{ width: 30, height: 30, background: '#3A3A3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round"/></svg>
+            <h2 style={{ color: '#1A1A2E', fontWeight: 800, fontSize: 20 }}>Log Sale</h2>
+            <button type="button" onClick={onClose} style={{ width: 30, height: 30, background: '#F0ECE7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke="#6B6560" strokeWidth="2" strokeLinecap="round"/></svg>
             </button>
           </div>
-          <p style={{ color: '#8E8E93', fontSize: 13, marginBottom: 24 }}>{car.title} · Bought for ${car.buyPrice.toLocaleString()}</p>
+          <p style={{ color: '#9B9490', fontSize: 13, marginBottom: 24 }}>{car.title} · Bought for ${car.buyPrice.toLocaleString()}</p>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ color: '#8E8E93', fontSize: 13, display: 'block', marginBottom: 8 }}>Sold For *</label>
+            <label style={{ color: '#9B9490', fontSize: 13, display: 'block', marginBottom: 8 }}>Sold For *</label>
             <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#8E8E93', fontSize: 16 }}>$</span>
+              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9490', fontSize: 16 }}>$</span>
               <input type="number" placeholder="0" value={sellPrice} onChange={e => setSellPrice(e.target.value)}
-                style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontSize: 17, fontWeight: 600, padding: '12px 14px 12px 28px', borderRadius: 12, border: 'none', outline: 'none' }} />
+                style={{ width: '100%', background: '#fff', color: '#1A1A2E', fontSize: 17, fontWeight: 600, padding: '12px 14px 12px 28px', borderRadius: 12, border: '1px solid rgba(26,26,46,0.12)', outline: 'none' }} />
             </div>
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ color: '#8E8E93', fontSize: 13, display: 'block', marginBottom: 8 }}>Repairs / Expenses</label>
+            <label style={{ color: '#9B9490', fontSize: 13, display: 'block', marginBottom: 8 }}>Repairs / Expenses</label>
             <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#8E8E93', fontSize: 16 }}>$</span>
+              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9490', fontSize: 16 }}>$</span>
               <input type="number" placeholder="0" value={expenses} onChange={e => setExpenses(e.target.value)}
-                style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontSize: 17, padding: '12px 14px 12px 28px', borderRadius: 12, border: 'none', outline: 'none' }} />
+                style={{ width: '100%', background: '#fff', color: '#1A1A2E', fontSize: 17, padding: '12px 14px 12px 28px', borderRadius: 12, border: '1px solid rgba(26,26,46,0.12)', outline: 'none' }} />
             </div>
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <label style={{ color: '#8E8E93', fontSize: 13, display: 'block', marginBottom: 8 }}>Date Sold</label>
+            <label style={{ color: '#9B9490', fontSize: 13, display: 'block', marginBottom: 8 }}>Date Sold</label>
             <input type="text" value={soldDate} onChange={e => setSoldDate(e.target.value)}
-              style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: 'none', outline: 'none' }} />
+              style={{ width: '100%', background: '#fff', color: '#1A1A2E', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(26,26,46,0.12)', outline: 'none' }} />
           </div>
 
           {estProfit !== null && (
-            <div style={{ background: estProfit >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(255,69,58,0.1)', borderRadius: 12, padding: '12px 16px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#8E8E93', fontSize: 14 }}>Est. Profit</span>
-              <span style={{ color: estProfit >= 0 ? '#22c55e' : '#ff453a', fontWeight: 800, fontSize: 20 }}>
+            <div style={{ background: estProfit >= 0 ? 'rgba(232,96,28,0.08)' : 'rgba(255,69,58,0.1)', borderRadius: 12, padding: '12px 16px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: '#9B9490', fontSize: 14 }}>Est. Profit</span>
+              <span style={{ color: estProfit >= 0 ? '#E8601C' : '#ff453a', fontWeight: 800, fontSize: 20 }}>
                 {estProfit >= 0 ? '+' : ''}{estProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
               </span>
             </div>
@@ -93,7 +93,7 @@ function LogSaleSheet({ car, onClose, onSave }: {
 
           <button type="button" onClick={() => canSave && onSave(Number(sellPrice), Number(expenses || 0), soldDate)}
             disabled={!canSave}
-            style={{ width: '100%', background: canSave ? '#22c55e' : '#2C2C2E', color: canSave ? '#000' : '#636366', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
+            style={{ width: '100%', background: canSave ? '#E8601C' : '#F0ECE7', color: canSave ? '#fff' : '#9B9490', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
             Save Sale
           </button>
         </div>
@@ -115,53 +115,53 @@ function AddCarSheet({ onClose, onAdd }: {
   const canAdd = title.trim().length > 0 && buyPrice.trim().length > 0 && Number(buyPrice) > 0;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
-      <div style={{ background: '#1C1C1E', borderRadius: '20px 20px 0 0', width: '100%', padding: '0 0 40px', maxHeight: '90vh', overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
+      <div style={{ background: '#FAF8F5', borderRadius: '20px 20px 0 0', width: '100%', padding: '0 0 40px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-          <div style={{ width: 36, height: 5, background: '#3A3A3C', borderRadius: 3 }} />
+          <div style={{ width: 36, height: 5, background: '#E0D9D0', borderRadius: 3 }} />
         </div>
         <div style={{ padding: '8px 20px 20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-            <h2 style={{ color: '#fff', fontWeight: 800, fontSize: 20 }}>Add Car</h2>
-            <button type="button" onClick={onClose} style={{ width: 30, height: 30, background: '#3A3A3C', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round"/></svg>
+            <h2 style={{ color: '#1A1A2E', fontWeight: 800, fontSize: 20 }}>Add Car</h2>
+            <button type="button" onClick={onClose} style={{ width: 30, height: 30, background: '#F0ECE7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke="#6B6560" strokeWidth="2" strokeLinecap="round"/></svg>
             </button>
           </div>
-          <p style={{ color: '#8E8E93', fontSize: 13, marginBottom: 24 }}>Track a car you just bought</p>
+          <p style={{ color: '#9B9490', fontSize: 13, marginBottom: 24 }}>Track a car you just bought</p>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ color: '#8E8E93', fontSize: 13, display: 'block', marginBottom: 8 }}>Vehicle *</label>
+            <label style={{ color: '#9B9490', fontSize: 13, display: 'block', marginBottom: 8 }}>Vehicle *</label>
             <input type="text" placeholder='e.g. "2019 Honda Civic"' value={title} onChange={e => setTitle(e.target.value)}
-              style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: 'none', outline: 'none' }} />
+              style={{ width: '100%', background: '#fff', color: '#1A1A2E', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(26,26,46,0.12)', outline: 'none' }} />
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ color: '#8E8E93', fontSize: 13, display: 'block', marginBottom: 8 }}>Bought For *</label>
+            <label style={{ color: '#9B9490', fontSize: 13, display: 'block', marginBottom: 8 }}>Bought For *</label>
             <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#8E8E93', fontSize: 16 }}>$</span>
+              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9490', fontSize: 16 }}>$</span>
               <input type="number" placeholder="0" value={buyPrice} onChange={e => setBuyPrice(e.target.value)}
-                style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontSize: 17, fontWeight: 600, padding: '12px 14px 12px 28px', borderRadius: 12, border: 'none', outline: 'none' }} />
+                style={{ width: '100%', background: '#fff', color: '#1A1A2E', fontSize: 17, fontWeight: 600, padding: '12px 14px 12px 28px', borderRadius: 12, border: '1px solid rgba(26,26,46,0.12)', outline: 'none' }} />
             </div>
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={{ color: '#8E8E93', fontSize: 13, display: 'block', marginBottom: 8 }}>Repairs / Expenses so far</label>
+            <label style={{ color: '#9B9490', fontSize: 13, display: 'block', marginBottom: 8 }}>Repairs / Expenses so far</label>
             <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#8E8E93', fontSize: 16 }}>$</span>
+              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9490', fontSize: 16 }}>$</span>
               <input type="number" placeholder="0" value={expenses} onChange={e => setExpenses(e.target.value)}
-                style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontSize: 17, padding: '12px 14px 12px 28px', borderRadius: 12, border: 'none', outline: 'none' }} />
+                style={{ width: '100%', background: '#fff', color: '#1A1A2E', fontSize: 17, padding: '12px 14px 12px 28px', borderRadius: 12, border: '1px solid rgba(26,26,46,0.12)', outline: 'none' }} />
             </div>
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <label style={{ color: '#8E8E93', fontSize: 13, display: 'block', marginBottom: 8 }}>Date Purchased</label>
+            <label style={{ color: '#9B9490', fontSize: 13, display: 'block', marginBottom: 8 }}>Date Purchased</label>
             <input type="text" value={boughtDate} onChange={e => setBoughtDate(e.target.value)}
-              style={{ width: '100%', background: '#2C2C2E', color: '#fff', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: 'none', outline: 'none' }} />
+              style={{ width: '100%', background: '#fff', color: '#1A1A2E', fontSize: 15, padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(26,26,46,0.12)', outline: 'none' }} />
           </div>
 
           <button type="button" onClick={() => canAdd && onAdd({ title, buyPrice: Number(buyPrice), expenses: Number(expenses || 0), boughtDate })}
             disabled={!canAdd}
-            style={{ width: '100%', background: canAdd ? '#22c55e' : '#2C2C2E', color: canAdd ? '#000' : '#636366', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
+            style={{ width: '100%', background: canAdd ? '#E8601C' : '#F0ECE7', color: canAdd ? '#fff' : '#9B9490', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
             Add to Inventory
           </button>
         </div>
@@ -189,7 +189,6 @@ export default function TrackerPage() {
   const maxProfit = Math.max(...soldCars.map(c => profit(c) ?? 0), 1);
 
   function handleLogSale(car: Car, sellPrice: number, expenses: number, soldDate: string) {
-    const buyDate = car.boughtDate;
     setInventory(prev => prev.map(c => c.id === car.id ? {
       ...c,
       sellPrice,
@@ -216,18 +215,18 @@ export default function TrackerPage() {
   }
 
   return (
-    <div className="min-h-screen pb-safe" style={{ background: '#000' }}>
+    <div className="min-h-screen pb-safe" style={{ background: '#FAF8F5' }}>
       <div className="px-5 pt-14 pb-4">
         <Logo size="sm" />
-        <h1 style={{ color: '#fff', fontWeight: 800, fontSize: 28, marginTop: 16, letterSpacing: -0.5 }}>Flip Tracker</h1>
+        <h1 style={{ color: '#1A1A2E', fontWeight: 800, fontSize: 28, marginTop: 16, letterSpacing: -0.5 }}>Flip Tracker</h1>
       </div>
 
       {/* iOS Segmented Control */}
       <div className="px-5 mb-5">
-        <div style={{ background: '#2C2C2E', borderRadius: 11, padding: 2, display: 'flex' }}>
+        <div style={{ background: '#F0ECE7', borderRadius: 11, padding: 2, display: 'flex' }}>
           {(['stats', 'inventory', 'sold'] as TabType[]).map(t => (
             <button key={t} type="button" onClick={() => setTab(t)}
-              style={{ flex: 1, padding: '7px 4px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: tab === t ? '#000' : '#8E8E93', background: tab === t ? '#fff' : 'transparent', transition: 'all 0.2s ease', boxShadow: tab === t ? '0 1px 4px rgba(0,0,0,0.3)' : 'none' }}>
+              style={{ flex: 1, padding: '7px 4px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: tab === t ? '#1A1A2E' : '#9B9490', background: tab === t ? '#fff' : 'transparent', transition: 'all 0.2s ease', boxShadow: tab === t ? '0 1px 4px rgba(26,26,46,0.12)' : 'none' }}>
               {t === 'inventory' ? `In Stock (${activeCars.length})` : t === 'sold' ? `Sold (${soldCars.length})` : 'Stats'}
             </button>
           ))}
@@ -237,23 +236,23 @@ export default function TrackerPage() {
       {/* STATS TAB */}
       {tab === 'stats' && (
         <div className="px-5 space-y-3">
-          <div style={{ background: '#1C1C1E', borderRadius: 20, padding: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 16, border: '1px solid rgba(26,26,46,0.06)' }}>
             <div className="flex justify-between items-start mb-3">
               <div>
-                <p style={{ color: '#8E8E93', fontSize: 12, fontWeight: 500 }}>Monthly Profit</p>
-                <p style={{ color: '#fff', fontWeight: 800, fontSize: 34, letterSpacing: -1, marginTop: 2 }}>${totalProfit.toLocaleString()}</p>
+                <p style={{ color: '#9B9490', fontSize: 12, fontWeight: 500 }}>Monthly Profit</p>
+                <p style={{ color: '#1A1A2E', fontWeight: 800, fontSize: 34, letterSpacing: -1, marginTop: 2 }}>${totalProfit.toLocaleString()}</p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <p style={{ color: '#636366', fontSize: 12 }}>Goal</p>
-                <p style={{ color: '#8E8E93', fontSize: 14, fontWeight: 700 }}>${profitGoal.toLocaleString()}</p>
+                <p style={{ color: '#C0B9B2', fontSize: 12 }}>Goal</p>
+                <p style={{ color: '#9B9490', fontSize: 14, fontWeight: 700 }}>${profitGoal.toLocaleString()}</p>
               </div>
             </div>
-            <div style={{ height: 6, background: '#3A3A3C', borderRadius: 6, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${goalProgress}%`, background: '#22c55e', borderRadius: 6 }} />
+            <div style={{ height: 6, background: '#F0ECE7', borderRadius: 6, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${goalProgress}%`, background: '#E8601C', borderRadius: 6 }} />
             </div>
             <div className="flex justify-between mt-2">
-              <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 600 }}>{Math.round(goalProgress)}% of goal</span>
-              <span style={{ color: '#636366', fontSize: 12 }}>${Math.max(0, profitGoal - totalProfit).toLocaleString()} to go</span>
+              <span style={{ color: '#E8601C', fontSize: 12, fontWeight: 600 }}>{Math.round(goalProgress)}% of goal</span>
+              <span style={{ color: '#C0B9B2', fontSize: 12 }}>${Math.max(0, profitGoal - totalProfit).toLocaleString()} to go</span>
             </div>
           </div>
 
@@ -266,30 +265,30 @@ export default function TrackerPage() {
               { label: 'Avg Profit', value: `$${avgProfit.toLocaleString()}`, sub: 'per car', green: true },
               { label: 'Best Flip', value: soldCars.length ? `$${Math.max(...soldCars.map(c => profit(c) ?? 0)).toLocaleString()}` : '$0', sub: 'single deal', green: true },
             ].map(stat => (
-              <div key={stat.label} style={{ borderRadius: 16, padding: 14, background: stat.green ? 'rgba(34,197,94,0.1)' : '#1C1C1E' }}>
-                <p style={{ fontWeight: 800, fontSize: 22, color: stat.green ? '#22c55e' : '#fff', letterSpacing: -0.5 }}>{stat.value}</p>
-                <p style={{ color: '#8E8E93', fontSize: 12, fontWeight: 500, marginTop: 2 }}>{stat.label}</p>
-                <p style={{ color: '#636366', fontSize: 11 }}>{stat.sub}</p>
+              <div key={stat.label} style={{ borderRadius: 16, padding: 14, background: stat.green ? 'rgba(232,96,28,0.08)' : '#fff', border: '1px solid rgba(26,26,46,0.06)' }}>
+                <p style={{ fontWeight: 800, fontSize: 22, color: stat.green ? '#E8601C' : '#1A1A2E', letterSpacing: -0.5 }}>{stat.value}</p>
+                <p style={{ color: '#9B9490', fontSize: 12, fontWeight: 500, marginTop: 2 }}>{stat.label}</p>
+                <p style={{ color: '#C0B9B2', fontSize: 11 }}>{stat.sub}</p>
               </div>
             ))}
           </div>
 
           {soldCars.length > 0 && (
-            <div style={{ background: '#1C1C1E', borderRadius: 20, padding: 16 }}>
-              <p style={{ color: '#fff', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Profit Per Flip</p>
+            <div style={{ background: '#fff', borderRadius: 20, padding: 16, border: '1px solid rgba(26,26,46,0.06)' }}>
+              <p style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Profit Per Flip</p>
               <div className="space-y-3">
                 {soldCars.map(car => {
                   const p = profit(car) ?? 0;
                   return (
                     <div key={car.id}>
                       <div className="flex justify-between items-center mb-1">
-                        <span style={{ color: '#8E8E93', fontSize: 12 }}>{car.title}</span>
-                        <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 700 }}>+${p.toLocaleString()}</span>
+                        <span style={{ color: '#9B9490', fontSize: 12 }}>{car.title}</span>
+                        <span style={{ color: '#E8601C', fontSize: 12, fontWeight: 700 }}>+${p.toLocaleString()}</span>
                       </div>
-                      <div style={{ height: 8, background: '#3A3A3C', borderRadius: 8, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${(p / maxProfit) * 100}%`, background: '#22c55e', borderRadius: 8 }} />
+                      <div style={{ height: 8, background: '#F0ECE7', borderRadius: 8, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${(p / maxProfit) * 100}%`, background: '#E8601C', borderRadius: 8 }} />
                       </div>
-                      {car.daysToSell && <p style={{ color: '#636366', fontSize: 11, marginTop: 3 }}>{car.daysToSell} days to sell</p>}
+                      {car.daysToSell && <p style={{ color: '#C0B9B2', fontSize: 11, marginTop: 3 }}>{car.daysToSell} days to sell</p>}
                     </div>
                   );
                 })}
@@ -305,16 +304,16 @@ export default function TrackerPage() {
           {activeCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
               <p style={{ fontSize: 32, marginBottom: 8 }}>🎉</p>
-              <p style={{ color: '#fff', fontWeight: 700 }}>All sold!</p>
-              <p style={{ color: '#8E8E93', fontSize: 14, marginTop: 4 }}>Add a new car to track.</p>
+              <p style={{ color: '#1A1A2E', fontWeight: 700 }}>All sold!</p>
+              <p style={{ color: '#9B9490', fontSize: 14, marginTop: 4 }}>Add a new car to track.</p>
             </div>
           ) : (
             activeCars.map(car => (
-              <div key={car.id} style={{ background: '#1C1C1E', borderRadius: 16, padding: 16 }}>
+              <div key={car.id} style={{ background: '#fff', borderRadius: 16, padding: 16, border: '1px solid rgba(26,26,46,0.06)' }}>
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>{car.title}</h3>
-                    <p style={{ color: '#8E8E93', fontSize: 12, marginTop: 2 }}>Bought {car.boughtDate}</p>
+                    <h3 style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 15 }}>{car.title}</h3>
+                    <p style={{ color: '#9B9490', fontSize: 12, marginTop: 2 }}>Bought {car.boughtDate}</p>
                   </div>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(59,130,246,0.12)', color: '#60a5fa', fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>
                     <span style={{ width: 6, height: 6, background: '#60a5fa', borderRadius: '50%' }} />
@@ -322,20 +321,20 @@ export default function TrackerPage() {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div style={{ background: '#2C2C2E', borderRadius: 12, padding: 12, textAlign: 'center' }}>
-                    <p style={{ color: '#8E8E93', fontSize: 11 }}>Bought For</p>
-                    <p style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>${car.buyPrice.toLocaleString()}</p>
+                  <div style={{ background: '#F5F3F0', borderRadius: 12, padding: 12, textAlign: 'center' }}>
+                    <p style={{ color: '#9B9490', fontSize: 11 }}>Bought For</p>
+                    <p style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 15 }}>${car.buyPrice.toLocaleString()}</p>
                   </div>
                   <button type="button" onClick={() => setLogSaleCar(car)}
-                    style={{ background: 'rgba(34,197,94,0.1)', borderRadius: 12, padding: 12, textAlign: 'center', cursor: 'pointer' }}>
-                    <p style={{ color: '#22c55e', fontWeight: 700, fontSize: 14 }}>+ Log Sale</p>
+                    style={{ background: 'rgba(232,96,28,0.08)', borderRadius: 12, padding: 12, textAlign: 'center', cursor: 'pointer' }}>
+                    <p style={{ color: '#E8601C', fontWeight: 700, fontSize: 14 }}>+ Log Sale</p>
                   </button>
                 </div>
               </div>
             ))
           )}
           <button type="button" onClick={() => setShowAddCar(true)}
-            style={{ width: '100%', border: '1.5px dashed #3A3A3C', borderRadius: 16, padding: '18px 0', color: '#636366', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
+            style={{ width: '100%', border: '1.5px dashed #E0D9D0', borderRadius: 16, padding: '18px 0', color: '#9B9490', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
             + Add Car to Inventory
           </button>
         </div>
@@ -346,19 +345,19 @@ export default function TrackerPage() {
         <div className="px-5 space-y-2">
           {soldCars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0' }}>
-              <p style={{ color: '#8E8E93', fontSize: 15 }}>No sold cars yet.</p>
-              <p style={{ color: '#636366', fontSize: 13, marginTop: 4 }}>Log a sale from In Stock.</p>
+              <p style={{ color: '#9B9490', fontSize: 15 }}>No sold cars yet.</p>
+              <p style={{ color: '#C0B9B2', fontSize: 13, marginTop: 4 }}>Log a sale from In Stock.</p>
             </div>
           ) : soldCars.map(car => {
             const p = profit(car)!;
             return (
-              <div key={car.id} style={{ background: '#1C1C1E', borderRadius: 16, padding: 16 }}>
+              <div key={car.id} style={{ background: '#fff', borderRadius: 16, padding: 16, border: '1px solid rgba(26,26,46,0.06)' }}>
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>{car.title}</h3>
-                    <p style={{ color: '#8E8E93', fontSize: 12, marginTop: 2 }}>{car.boughtDate} → {car.soldDate}{car.daysToSell ? ` · ${car.daysToSell} days` : ''}</p>
+                    <h3 style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 15 }}>{car.title}</h3>
+                    <p style={{ color: '#9B9490', fontSize: 12, marginTop: 2 }}>{car.boughtDate} → {car.soldDate}{car.daysToSell ? ` · ${car.daysToSell} days` : ''}</p>
                   </div>
-                  <span style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>Sold</span>
+                  <span style={{ background: 'rgba(232,96,28,0.10)', color: '#E8601C', fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>Sold</span>
                 </div>
                 <div className="grid grid-cols-4 gap-1.5">
                   {[
@@ -367,9 +366,9 @@ export default function TrackerPage() {
                     { label: 'Expenses', value: `$${car.expenses.toLocaleString()}` },
                     { label: 'Profit', value: `+$${p.toLocaleString()}`, green: true },
                   ].map(s => (
-                    <div key={s.label} style={{ borderRadius: 10, padding: '10px 4px', textAlign: 'center', background: s.green ? 'rgba(34,197,94,0.1)' : '#2C2C2E' }}>
-                      <p style={{ color: '#8E8E93', fontSize: 10 }}>{s.label}</p>
-                      <p style={{ fontWeight: 700, fontSize: 12, marginTop: 2, color: s.green ? '#22c55e' : '#fff' }}>{s.value}</p>
+                    <div key={s.label} style={{ borderRadius: 10, padding: '10px 4px', textAlign: 'center', background: s.green ? 'rgba(232,96,28,0.08)' : '#F5F3F0' }}>
+                      <p style={{ color: '#9B9490', fontSize: 10 }}>{s.label}</p>
+                      <p style={{ fontWeight: 700, fontSize: 12, marginTop: 2, color: s.green ? '#E8601C' : '#1A1A2E' }}>{s.value}</p>
                     </div>
                   ))}
                 </div>

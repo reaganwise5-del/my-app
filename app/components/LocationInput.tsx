@@ -75,7 +75,7 @@ export default function LocationInput({
     <div ref={ref} className="relative">
       <div className="relative">
         <svg className="absolute left-4 top-1/2 -translate-y-1/2 shrink-0" width="16" height="16" fill="none" viewBox="0 0 24 24">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#52525b" />
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#9B9490" />
         </svg>
         <input
           type="text"
@@ -83,28 +83,29 @@ export default function LocationInput({
           onChange={e => handleInput(e.target.value)}
           onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
           placeholder={placeholder}
-          className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-xl pl-10 pr-10 py-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-zinc-500"
+          style={{ width: '100%', background: '#fff', border: '1px solid rgba(26,26,46,0.12)', color: '#1A1A2E', borderRadius: 12, paddingTop: 12, paddingBottom: 12, paddingLeft: 40, paddingRight: 40, fontSize: 14, outline: 'none' }}
         />
         {loading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <div className="w-4 h-4 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+            <div style={{ width: 16, height: 16, borderWidth: 2, borderStyle: 'solid', borderColor: '#E8601C', borderTopColor: 'transparent', borderRadius: '50%' }} className="animate-spin" />
           </div>
         )}
       </div>
 
       {open && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 bg-zinc-900 border border-zinc-700 rounded-xl overflow-hidden z-50 shadow-xl">
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 6, background: '#fff', border: '1px solid rgba(26,26,46,0.12)', borderRadius: 12, overflow: 'hidden', zIndex: 50, boxShadow: '0 8px 24px rgba(26,26,46,0.12)' }}>
           {suggestions.map((s, i) => (
             <button
               key={i}
               type="button"
               onMouseDown={() => { onChange(s); setOpen(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 transition-colors text-left border-b border-zinc-800/60 last:border-0 hover:bg-zinc-800"
+              style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', textAlign: 'left', borderBottom: i < suggestions.length - 1 ? '0.5px solid rgba(26,26,46,0.06)' : 'none', background: 'transparent', cursor: 'pointer' }}
+              className="hover:bg-stone-50 transition-colors"
             >
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" className="shrink-0">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#22c55e" />
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#E8601C" />
               </svg>
-              <span className="text-sm text-white">{s}</span>
+              <span style={{ fontSize: 14, color: '#1A1A2E' }}>{s}</span>
             </button>
           ))}
         </div>

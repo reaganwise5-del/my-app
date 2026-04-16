@@ -13,8 +13,8 @@ function SearchCard({ search, onToggle }: { search: Search; onToggle: (id: strin
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-white font-bold text-base truncate">{search.name}</h3>
             {search.active && (
-              <span className="flex items-center gap-1 bg-green-500/15 border border-green-500/30 text-green-400 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
-                <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+              <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0" style={{ background: 'rgba(232,96,28,0.10)', border: '1px solid rgba(232,96,28,0.2)', color: '#E8601C' }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#E8601C' }} />
                 Live
               </span>
             )}
