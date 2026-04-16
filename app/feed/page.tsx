@@ -129,7 +129,7 @@ export default function FeedPage() {
               </svg>
             </button>
             <button type="button" onClick={() => setShowModal(true)}
-              style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 13, padding: '8px 16px', borderRadius: 20, border: 'none', boxShadow: '0 2px 8px rgba(232,96,28,0.30)' }}>
+              style={{ background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 13, padding: '8px 16px', borderRadius: 20, border: 'none', boxShadow: '0 2px 8px rgba(251,71,31,0.30)' }}>
               + Alert
             </button>
           </div>
@@ -198,16 +198,16 @@ function StatusBanner({ source, lastRefresh, refreshing, progress, onRefresh, ti
   );
 
   if (source === 'demo') return (
-    <div style={{ ...base, background: 'rgba(232,96,28,0.06)', border: '1px solid rgba(232,96,28,0.12)' }}>
+    <div style={{ ...base, background: 'rgba(251,71,31,0.06)', border: '1px solid rgba(251,71,31,0.12)' }}>
       <span style={{ color: '#9B6B4A', fontWeight: 500 }}>Sample listings — connect your city to go live</span>
-      <a href="/settings" style={{ color: '#E8601C', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Setup →</a>
+      <a href="/settings" style={{ color: '#FB471F', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Setup →</a>
     </div>
   );
 
   return (
     <div style={{ ...base, background: 'rgba(26,26,46,0.04)', border: '1px solid rgba(26,26,46,0.07)' }}>
       <span style={{ color: '#9B9490' }}>Couldn't load live data</span>
-      <button type="button" onClick={onRefresh} style={{ color: '#E8601C', fontSize: 12, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>Retry</button>
+      <button type="button" onClick={onRefresh} style={{ color: '#FB471F', fontSize: 12, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>Retry</button>
     </div>
   );
 }
@@ -239,7 +239,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
       <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, color: '#1A1A2E', marginBottom: 8 }}>No deals yet</p>
       <p style={{ color: '#9B9490', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>Create an alert and we'll scan Facebook Marketplace for deals in your area.</p>
       <button type="button" onClick={onAdd}
-        style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 15, padding: '13px 28px', borderRadius: 24, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(232,96,28,0.35)' }}>
+        style={{ background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 15, padding: '13px 28px', borderRadius: 24, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(251,71,31,0.35)' }}>
         Create your first alert
       </button>
     </div>

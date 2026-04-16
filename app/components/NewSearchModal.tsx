@@ -174,13 +174,13 @@ export default function NewSearchModal({
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 4,
                   padding: '4px 10px', borderRadius: 999, fontSize: 12, fontWeight: 700,
-                  background: i === step ? '#E8601C' : i < step ? 'rgba(232,96,28,0.12)' : '#F0ECE7',
-                  color: i === step ? '#fff' : i < step ? '#E8601C' : '#9B9490',
+                  background: i === step ? '#FB471F' : i < step ? 'rgba(251,71,31,0.12)' : '#F0ECE7',
+                  color: i === step ? '#fff' : i < step ? '#FB471F' : '#9B9490',
                 }}>
                   {i < step ? '✓' : i + 1} {i === step ? s : ''}
                 </div>
                 {i < STEPS.length - 1 && (
-                  <div style={{ height: 1, width: 12, background: i < step ? 'rgba(232,96,28,0.3)' : '#E0D9D0' }} />
+                  <div style={{ height: 1, width: 12, background: i < step ? 'rgba(251,71,31,0.3)' : '#E0D9D0' }} />
                 )}
               </div>
             ))}
@@ -218,9 +218,9 @@ export default function NewSearchModal({
                     <button key={r} type="button" onClick={() => setRadius(r)}
                       style={{
                         padding: '10px 0', borderRadius: 12, fontSize: 14, fontWeight: 700,
-                        background: radius === r ? 'rgba(232,96,28,0.10)' : '#fff',
-                        border: radius === r ? '1px solid rgba(232,96,28,0.35)' : '1px solid rgba(26,26,46,0.10)',
-                        color: radius === r ? '#E8601C' : '#6B6560',
+                        background: radius === r ? 'rgba(251,71,31,0.10)' : '#fff',
+                        border: radius === r ? '1px solid rgba(251,71,31,0.35)' : '1px solid rgba(26,26,46,0.10)',
+                        color: radius === r ? '#FB471F' : '#6B6560',
                       }}>
                       {r} mi
                     </button>
@@ -241,9 +241,9 @@ export default function NewSearchModal({
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '12px 16px', borderRadius: 12, fontSize: 14, fontWeight: 700,
-                  background: anyMake ? 'rgba(232,96,28,0.10)' : '#F5F3F0',
-                  border: anyMake ? '1px solid rgba(232,96,28,0.3)' : '1px solid rgba(26,26,46,0.10)',
-                  color: anyMake ? '#E8601C' : '#6B6560',
+                  background: anyMake ? 'rgba(251,71,31,0.10)' : '#F5F3F0',
+                  border: anyMake ? '1px solid rgba(251,71,31,0.3)' : '1px solid rgba(26,26,46,0.10)',
+                  color: anyMake ? '#FB471F' : '#6B6560',
                 }}>
                 <span>{anyMake ? '✓ Any Cars & Trucks' : 'Custom selection'}</span>
                 <span style={{ color: '#9B9490', fontSize: 12 }}>{anyMake ? 'tap to filter' : 'tap to reset'}</span>
@@ -343,9 +343,9 @@ export default function NewSearchModal({
               </div>
 
               {!isEditing && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(232,96,28,0.08)', border: '1px solid rgba(232,96,28,0.15)', borderRadius: 12, padding: '12px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(251,71,31,0.08)', border: '1px solid rgba(251,71,31,0.15)', borderRadius: 12, padding: '12px 16px' }}>
                   <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
-                    <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#E8601C" strokeWidth="2" strokeLinejoin="round" />
+                    <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#FB471F" strokeWidth="2" strokeLinejoin="round" />
                   </svg>
                   <p style={{ color: '#C44B0F', fontSize: 12, fontWeight: 600 }}>Alerts go live instantly — under 5 min from posting</p>
                 </div>
@@ -357,19 +357,19 @@ export default function NewSearchModal({
         {/* Success state overlay */}
         {saved && (
           <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center" style={{ background: '#FAF8F5', borderRadius: '20px 20px 0 0', zIndex: 10 }}>
-            <div style={{ width: 72, height: 72, background: 'rgba(232,96,28,0.12)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+            <div style={{ width: 72, height: 72, background: 'rgba(251,71,31,0.12)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
               <svg width="36" height="36" fill="none" viewBox="0 0 24 24">
-                <path d="M20 6L9 17l-5-5" stroke="#E8601C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M20 6L9 17l-5-5" stroke="#FB471F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <p style={{ color: '#1A1A2E', fontWeight: 800, fontSize: 22, marginBottom: 8 }}>Alert is Live!</p>
             <p style={{ color: '#6B6560', fontSize: 14, lineHeight: 1.6, marginBottom: 32 }}>
-              <span style={{ color: '#E8601C', fontWeight: 700 }}>"{name}"</span> is now active. You'll get notified within minutes when a matching deal is posted.
+              <span style={{ color: '#FB471F', fontWeight: 700 }}>"{name}"</span> is now active. You'll get notified within minutes when a matching deal is posted.
             </p>
             <button
               type="button"
               onClick={onClose}
-              style={{ width: '100%', background: '#E8601C', color: '#fff', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}
+              style={{ width: '100%', background: '#FB471F', color: '#fff', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}
             >
               Done
             </button>
@@ -391,12 +391,12 @@ export default function NewSearchModal({
           )}
           {step < STEPS.length - 1 ? (
             <button type="button" onClick={() => setStep(s => s + 1)} disabled={!canNext()}
-              style={{ flex: 1, background: '#E8601C', color: '#fff', fontWeight: 900, padding: '16px 0', borderRadius: 12, fontSize: 14, boxShadow: '0 2px 10px rgba(232,96,28,0.30)', opacity: canNext() ? 1 : 0.4 }}>
+              style={{ flex: 1, background: '#FB471F', color: '#fff', fontWeight: 900, padding: '16px 0', borderRadius: 12, fontSize: 14, boxShadow: '0 2px 10px rgba(251,71,31,0.30)', opacity: canNext() ? 1 : 0.4 }}>
               Next
             </button>
           ) : (
             <button type="button" onClick={handleSave}
-              style={{ flex: 1, background: '#E8601C', color: '#fff', fontWeight: 900, padding: '16px 0', borderRadius: 12, fontSize: 14, boxShadow: '0 2px 10px rgba(232,96,28,0.30)' }}>
+              style={{ flex: 1, background: '#FB471F', color: '#fff', fontWeight: 900, padding: '16px 0', borderRadius: 12, fontSize: 14, boxShadow: '0 2px 10px rgba(251,71,31,0.30)' }}>
               {isEditing ? 'Save Changes' : 'Start Alert'}
             </button>
           )}

@@ -11,7 +11,7 @@ function timeAgo(minutes: number): string {
 
 function getDealBadge(profit: number, askingPrice: number) {
   const pct = (profit / askingPrice) * 100;
-  if (pct >= 35) return { label: '🔥 Hot Deal', bg: '#FFF4EE', color: '#C44B0F', border: 'rgba(232,96,28,0.18)' };
+  if (pct >= 35) return { label: '🔥 Hot Deal', bg: '#FFF4EE', color: '#C44B0F', border: 'rgba(251,71,31,0.18)' };
   if (pct >= 20) return { label: '✦ Good Deal', bg: '#EDFBF3', color: '#15803D', border: 'rgba(21,128,61,0.18)' };
   if (pct >= 8) return { label: 'Fair Price', bg: '#F5F3F0', color: '#6B6560', border: 'rgba(107,101,96,0.15)' };
   return null;

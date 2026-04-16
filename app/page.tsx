@@ -44,7 +44,7 @@ function SearchCard({ search, onToggle, onEdit }: { search: Search; onToggle: (i
       </div>
 
       {search.active && search.alertsToday > 0 && (
-        <p style={{ color: '#E8601C', fontSize: 12, fontWeight: 600, marginTop: 10 }}>{search.alertsToday} new listings today</p>
+        <p style={{ color: '#FB471F', fontSize: 12, fontWeight: 600, marginTop: 10 }}>{search.alertsToday} new listings today</p>
       )}
     </div>
   );
@@ -86,7 +86,7 @@ export default function HomePage() {
       <div style={{ padding: '56px 20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Logo size="md" />
         <button type="button" onClick={() => setModal({ mode: 'new' })}
-          style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 14, padding: '9px 18px', borderRadius: 22, display: 'flex', alignItems: 'center', gap: 6, border: 'none', cursor: 'pointer', boxShadow: '0 2px 10px rgba(232,96,28,0.30)' }}>
+          style={{ background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 14, padding: '9px 18px', borderRadius: 22, display: 'flex', alignItems: 'center', gap: 6, border: 'none', cursor: 'pointer', boxShadow: '0 2px 10px rgba(251,71,31,0.30)' }}>
           <svg width="12" height="12" fill="none" viewBox="0 0 24 24">
             <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
@@ -110,7 +110,7 @@ export default function HomePage() {
       {/* Quick stats */}
       <div style={{ padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
         <Link href="/feed" style={{ background: '#fff', borderRadius: 16, padding: '18px 16px', display: 'block', border: '1px solid rgba(26,26,46,0.07)', boxShadow: '0 1px 3px rgba(26,26,46,0.05)', textDecoration: 'none' }}>
-          <p style={{ color: '#E8601C', fontWeight: 800, fontSize: 28, letterSpacing: -1, lineHeight: 1 }}>{totalAlertsToday}</p>
+          <p style={{ color: '#FB471F', fontWeight: 800, fontSize: 28, letterSpacing: -1, lineHeight: 1 }}>{totalAlertsToday}</p>
           <p style={{ color: '#6B6560', fontSize: 13, fontWeight: 500, marginTop: 4 }}>new today</p>
           <p style={{ color: '#C0B9B2', fontSize: 11, fontWeight: 600, marginTop: 8 }}>View feed →</p>
         </Link>
@@ -125,7 +125,7 @@ export default function HomePage() {
       <div style={{ padding: '0 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <p style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 17 }}>Your Alerts</p>
-          <button type="button" onClick={() => setModal({ mode: 'new' })} style={{ color: '#E8601C', fontSize: 13, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>
+          <button type="button" onClick={() => setModal({ mode: 'new' })} style={{ color: '#FB471F', fontSize: 13, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>
             + Add
           </button>
         </div>
@@ -137,7 +137,7 @@ export default function HomePage() {
               <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 20, color: '#1A1A2E', marginBottom: 8 }}>No alerts yet</p>
               <p style={{ color: '#9B9490', fontSize: 14, lineHeight: 1.6, marginBottom: 22 }}>Tell us what you're looking for and we'll find deals before anyone else does.</p>
               <button type="button" onClick={() => setModal({ mode: 'new' })}
-                style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 15, padding: '13px 28px', borderRadius: 24, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(232,96,28,0.30)' }}>
+                style={{ background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 15, padding: '13px 28px', borderRadius: 24, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(251,71,31,0.30)' }}>
                 Create your first alert
               </button>
             </div>
@@ -153,10 +153,10 @@ export default function HomePage() {
           <div style={{ marginTop: 14, padding: '14px 16px', background: '#fff', borderRadius: 14, border: '1px solid rgba(26,26,46,0.07)', boxShadow: '0 1px 3px rgba(26,26,46,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span style={{ color: '#6B6560', fontSize: 13, fontWeight: 500 }}>{activeCount} of 5 alerts active</span>
-              <Link href="/settings" style={{ color: '#E8601C', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Upgrade plan</Link>
+              <Link href="/settings" style={{ color: '#FB471F', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Upgrade plan</Link>
             </div>
             <div style={{ height: 4, background: '#F0ECE7', borderRadius: 4, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${(activeCount / 5) * 100}%`, background: '#E8601C', borderRadius: 4, transition: 'width 0.4s ease' }} />
+              <div style={{ height: '100%', width: `${(activeCount / 5) * 100}%`, background: '#FB471F', borderRadius: 4, transition: 'width 0.4s ease' }} />
             </div>
           </div>
         )}

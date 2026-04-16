@@ -83,9 +83,9 @@ function LogSaleSheet({ car, onClose, onSave }: {
           </div>
 
           {estProfit !== null && (
-            <div style={{ background: estProfit >= 0 ? 'rgba(232,96,28,0.08)' : 'rgba(255,69,58,0.1)', borderRadius: 12, padding: '12px 16px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: estProfit >= 0 ? 'rgba(251,71,31,0.08)' : 'rgba(255,69,58,0.1)', borderRadius: 12, padding: '12px 16px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: '#9B9490', fontSize: 14 }}>Est. Profit</span>
-              <span style={{ color: estProfit >= 0 ? '#E8601C' : '#ff453a', fontWeight: 800, fontSize: 20 }}>
+              <span style={{ color: estProfit >= 0 ? '#FB471F' : '#ff453a', fontWeight: 800, fontSize: 20 }}>
                 {estProfit >= 0 ? '+' : ''}{estProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}
               </span>
             </div>
@@ -93,7 +93,7 @@ function LogSaleSheet({ car, onClose, onSave }: {
 
           <button type="button" onClick={() => canSave && onSave(Number(sellPrice), Number(expenses || 0), soldDate)}
             disabled={!canSave}
-            style={{ width: '100%', background: canSave ? '#E8601C' : '#F0ECE7', color: canSave ? '#fff' : '#9B9490', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
+            style={{ width: '100%', background: canSave ? '#FB471F' : '#F0ECE7', color: canSave ? '#fff' : '#9B9490', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
             Save Sale
           </button>
         </div>
@@ -161,7 +161,7 @@ function AddCarSheet({ onClose, onAdd }: {
 
           <button type="button" onClick={() => canAdd && onAdd({ title, buyPrice: Number(buyPrice), expenses: Number(expenses || 0), boughtDate })}
             disabled={!canAdd}
-            style={{ width: '100%', background: canAdd ? '#E8601C' : '#F0ECE7', color: canAdd ? '#fff' : '#9B9490', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
+            style={{ width: '100%', background: canAdd ? '#FB471F' : '#F0ECE7', color: canAdd ? '#fff' : '#9B9490', fontWeight: 800, fontSize: 17, padding: '15px 0', borderRadius: 14 }}>
             Add to Inventory
           </button>
         </div>
@@ -248,10 +248,10 @@ export default function TrackerPage() {
               </div>
             </div>
             <div style={{ height: 6, background: '#F0ECE7', borderRadius: 6, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${goalProgress}%`, background: '#E8601C', borderRadius: 6 }} />
+              <div style={{ height: '100%', width: `${goalProgress}%`, background: '#FB471F', borderRadius: 6 }} />
             </div>
             <div className="flex justify-between mt-2">
-              <span style={{ color: '#E8601C', fontSize: 12, fontWeight: 600 }}>{Math.round(goalProgress)}% of goal</span>
+              <span style={{ color: '#FB471F', fontSize: 12, fontWeight: 600 }}>{Math.round(goalProgress)}% of goal</span>
               <span style={{ color: '#C0B9B2', fontSize: 12 }}>${Math.max(0, profitGoal - totalProfit).toLocaleString()} to go</span>
             </div>
           </div>
@@ -265,8 +265,8 @@ export default function TrackerPage() {
               { label: 'Avg Profit', value: `$${avgProfit.toLocaleString()}`, sub: 'per car', green: true },
               { label: 'Best Flip', value: soldCars.length ? `$${Math.max(...soldCars.map(c => profit(c) ?? 0)).toLocaleString()}` : '$0', sub: 'single deal', green: true },
             ].map(stat => (
-              <div key={stat.label} style={{ borderRadius: 16, padding: 14, background: stat.green ? 'rgba(232,96,28,0.08)' : '#fff', border: '1px solid rgba(26,26,46,0.06)' }}>
-                <p style={{ fontWeight: 800, fontSize: 22, color: stat.green ? '#E8601C' : '#1A1A2E', letterSpacing: -0.5 }}>{stat.value}</p>
+              <div key={stat.label} style={{ borderRadius: 16, padding: 14, background: stat.green ? 'rgba(251,71,31,0.08)' : '#fff', border: '1px solid rgba(26,26,46,0.06)' }}>
+                <p style={{ fontWeight: 800, fontSize: 22, color: stat.green ? '#FB471F' : '#1A1A2E', letterSpacing: -0.5 }}>{stat.value}</p>
                 <p style={{ color: '#9B9490', fontSize: 12, fontWeight: 500, marginTop: 2 }}>{stat.label}</p>
                 <p style={{ color: '#C0B9B2', fontSize: 11 }}>{stat.sub}</p>
               </div>
@@ -283,10 +283,10 @@ export default function TrackerPage() {
                     <div key={car.id}>
                       <div className="flex justify-between items-center mb-1">
                         <span style={{ color: '#9B9490', fontSize: 12 }}>{car.title}</span>
-                        <span style={{ color: '#E8601C', fontSize: 12, fontWeight: 700 }}>+${p.toLocaleString()}</span>
+                        <span style={{ color: '#FB471F', fontSize: 12, fontWeight: 700 }}>+${p.toLocaleString()}</span>
                       </div>
                       <div style={{ height: 8, background: '#F0ECE7', borderRadius: 8, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${(p / maxProfit) * 100}%`, background: '#E8601C', borderRadius: 8 }} />
+                        <div style={{ height: '100%', width: `${(p / maxProfit) * 100}%`, background: '#FB471F', borderRadius: 8 }} />
                       </div>
                       {car.daysToSell && <p style={{ color: '#C0B9B2', fontSize: 11, marginTop: 3 }}>{car.daysToSell} days to sell</p>}
                     </div>
@@ -326,8 +326,8 @@ export default function TrackerPage() {
                     <p style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 15 }}>${car.buyPrice.toLocaleString()}</p>
                   </div>
                   <button type="button" onClick={() => setLogSaleCar(car)}
-                    style={{ background: 'rgba(232,96,28,0.08)', borderRadius: 12, padding: 12, textAlign: 'center', cursor: 'pointer' }}>
-                    <p style={{ color: '#E8601C', fontWeight: 700, fontSize: 14 }}>+ Log Sale</p>
+                    style={{ background: 'rgba(251,71,31,0.08)', borderRadius: 12, padding: 12, textAlign: 'center', cursor: 'pointer' }}>
+                    <p style={{ color: '#FB471F', fontWeight: 700, fontSize: 14 }}>+ Log Sale</p>
                   </button>
                 </div>
               </div>
@@ -357,7 +357,7 @@ export default function TrackerPage() {
                     <h3 style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 15 }}>{car.title}</h3>
                     <p style={{ color: '#9B9490', fontSize: 12, marginTop: 2 }}>{car.boughtDate} → {car.soldDate}{car.daysToSell ? ` · ${car.daysToSell} days` : ''}</p>
                   </div>
-                  <span style={{ background: 'rgba(232,96,28,0.10)', color: '#E8601C', fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>Sold</span>
+                  <span style={{ background: 'rgba(251,71,31,0.10)', color: '#FB471F', fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>Sold</span>
                 </div>
                 <div className="grid grid-cols-4 gap-1.5">
                   {[
@@ -366,9 +366,9 @@ export default function TrackerPage() {
                     { label: 'Expenses', value: `$${car.expenses.toLocaleString()}` },
                     { label: 'Profit', value: `+$${p.toLocaleString()}`, green: true },
                   ].map(s => (
-                    <div key={s.label} style={{ borderRadius: 10, padding: '10px 4px', textAlign: 'center', background: s.green ? 'rgba(232,96,28,0.08)' : '#F5F3F0' }}>
+                    <div key={s.label} style={{ borderRadius: 10, padding: '10px 4px', textAlign: 'center', background: s.green ? 'rgba(251,71,31,0.08)' : '#F5F3F0' }}>
                       <p style={{ color: '#9B9490', fontSize: 10 }}>{s.label}</p>
-                      <p style={{ fontWeight: 700, fontSize: 12, marginTop: 2, color: s.green ? '#E8601C' : '#1A1A2E' }}>{s.value}</p>
+                      <p style={{ fontWeight: 700, fontSize: 12, marginTop: 2, color: s.green ? '#FB471F' : '#1A1A2E' }}>{s.value}</p>
                     </div>
                   ))}
                 </div>

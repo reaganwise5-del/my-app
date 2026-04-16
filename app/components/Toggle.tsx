@@ -10,7 +10,7 @@ export default function Toggle({ active, onToggle }: { active: boolean; onToggle
         width: 48,
         height: 28,
         borderRadius: 999,
-        backgroundColor: active ? '#E8601C' : '#D5CFC8',
+        backgroundColor: active ? '#FB471F' : '#D5CFC8',
         border: 'none',
         cursor: 'pointer',
         flexShrink: 0,

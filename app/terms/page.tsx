@@ -6,9 +6,9 @@ export default function TermsPage() {
   return (
     <div style={{ background: '#FAF8F5', minHeight: '100vh', padding: '0 0 60px', color: '#1A1A2E', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '56px 16px 12px', position: 'sticky', top: 0, background: 'rgba(250,248,245,0.90)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '0.5px solid rgba(26,26,46,0.08)', zIndex: 10 }}>
-        <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8601C', fontSize: 17, background: 'none', padding: 0 }}>
+        <button onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#FB471F', fontSize: 17, background: 'none', padding: 0 }}>
           <svg width="10" height="17" fill="none" viewBox="0 0 10 17">
-            <path d="M9 1L1 8.5 9 16" stroke="#E8601C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 1L1 8.5 9 16" stroke="#FB471F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Settings
         </button>

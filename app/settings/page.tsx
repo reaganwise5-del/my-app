@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Logo from '../components/Logo';
 import BottomNav from '../components/BottomNav';
 import Toggle from '../components/Toggle';
+import { useTheme } from '../components/ThemeProvider';
 
 const chevron = (
   <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
@@ -22,7 +23,7 @@ function Row({ label, value, action, onTap, destructive }: {
       <span style={{ color: destructive ? '#ff453a' : '#1A1A2E', fontSize: 15 }}>{label}</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         {value && <span style={{ color: '#9B9490', fontSize: 15 }}>{value}</span>}
-        {action && <span style={{ color: '#E8601C', fontSize: 15 }}>{action}</span>}
+        {action && <span style={{ color: '#FB471F', fontSize: 15 }}>{action}</span>}
         {onTap && chevron}
       </div>
     </div>
@@ -54,7 +55,7 @@ function EditRow({ label, value, onSave }: { label: string; value: string; onSav
               style={{ flex: 1, background: '#F5F3F0', color: '#1A1A2E', fontSize: 15, padding: '8px 12px', borderRadius: 10, border: '1px solid rgba(26,26,46,0.10)', outline: 'none' }}
             />
             <button type="button" onClick={() => { onSave(draft); setEditing(false); }}
-              style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 13, padding: '8px 14px', borderRadius: 10 }}>
+              style={{ background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 13, padding: '8px 14px', borderRadius: 10 }}>
               Save
             </button>
             <button type="button" onClick={() => { setDraft(value); setEditing(false); }}
@@ -96,7 +97,7 @@ function ComingSoon({ label, onClose }: { label: string; onClose: () => void }) 
         <div style={{ width: 36, height: 5, background: '#E0D9D0', borderRadius: 3, margin: '0 auto 24px' }} />
         <div style={{ width: 52, height: 52, background: '#F0ECE7', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
           <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#E8601C" strokeWidth="1.8" strokeLinejoin="round"/>
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#FB471F" strokeWidth="1.8" strokeLinejoin="round"/>
           </svg>
         </div>
         <p style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>{label}</p>
@@ -132,7 +133,7 @@ function ConnectDataSheet({ onClose }: { onClose: () => void }) {
             title="Create a free Apify account"
             desc="Apify is the service that scrapes Facebook Marketplace for us. Free tier included."
             action={<a href="https://apify.com/sign-up" target="_blank" rel="noreferrer"
-              style={{ display: 'inline-block', background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 14, padding: '10px 20px', borderRadius: 12 }}>
+              style={{ display: 'inline-block', background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 14, padding: '10px 20px', borderRadius: 12 }}>
               Sign Up Free →
             </a>}
             onContinue={() => setStep(2)}
@@ -145,7 +146,7 @@ function ConnectDataSheet({ onClose }: { onClose: () => void }) {
             action={
               <div style={{ background: '#F5F3F0', borderRadius: 12, padding: 12, border: '1px solid rgba(26,26,46,0.08)' }}>
                 <p style={{ color: '#9B9490', fontSize: 11, marginBottom: 4 }}>It looks like this:</p>
-                <code style={{ color: '#E8601C', fontSize: 13 }}>apify_api_xxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
+                <code style={{ color: '#FB471F', fontSize: 13 }}>apify_api_xxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
               </div>
             }
             onContinue={() => setStep(3)}
@@ -154,12 +155,12 @@ function ConnectDataSheet({ onClose }: { onClose: () => void }) {
           {/* Step 3 */}
           <StepCard num={3} active={step === 3} done={false}
             title="Add your key to .env.local"
-            desc={<>Open the file <strong style={{ color: '#1A1A2E' }}>.env.local</strong> in your FlipAlert project folder and paste your key next to <code style={{ color: '#E8601C' }}>APIFY_API_KEY=</code></>}
+            desc={<>Open the file <strong style={{ color: '#1A1A2E' }}>.env.local</strong> in your FlipAlert project folder and paste your key next to <code style={{ color: '#FB471F' }}>APIFY_API_KEY=</code></>}
             action={
               <div>
                 <div style={{ background: '#1A1A2E', borderRadius: 12, padding: 12, fontFamily: 'monospace' }}>
                   <p style={{ color: '#6B6560', fontSize: 12 }}># .env.local</p>
-                  <p style={{ color: '#E8601C', fontSize: 13 }}>APIFY_API_KEY=apify_api_your_key_here</p>
+                  <p style={{ color: '#FB471F', fontSize: 13 }}>APIFY_API_KEY=apify_api_your_key_here</p>
                 </div>
                 <p style={{ color: '#9B9490', fontSize: 12, marginTop: 8 }}>Then restart the dev server (<code style={{ color: '#6B6560' }}>npm run dev</code>) and refresh the app. The feed will automatically switch to live listings.</p>
               </div>
@@ -179,22 +180,22 @@ function StepCard({ num, active, done, title, desc, action, onContinue, continue
   onContinue: () => void; continueLabel?: string;
 }) {
   return (
-    <div style={{ background: active ? '#fff' : done ? 'rgba(232,96,28,0.05)' : '#F5F3F0', border: '1px solid rgba(26,26,46,0.08)', borderRadius: 16, padding: 16, marginBottom: 12, opacity: (!active && !done) ? 0.5 : 1, transition: 'all 0.2s' }}>
+    <div style={{ background: active ? '#fff' : done ? 'rgba(251,71,31,0.05)' : '#F5F3F0', border: '1px solid rgba(26,26,46,0.08)', borderRadius: 16, padding: 16, marginBottom: 12, opacity: (!active && !done) ? 0.5 : 1, transition: 'all 0.2s' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-        <div style={{ width: 28, height: 28, borderRadius: '50%', background: done ? '#E8601C' : active ? '#1A1A2E' : '#F0ECE7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', background: done ? '#FB471F' : active ? '#1A1A2E' : '#F0ECE7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           {done
             ? <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             : <span style={{ color: active ? '#fff' : '#9B9490', fontSize: 13, fontWeight: 700 }}>{num}</span>
           }
         </div>
-        <p style={{ color: done ? '#E8601C' : '#1A1A2E', fontWeight: 700, fontSize: 15 }}>{title}</p>
+        <p style={{ color: done ? '#FB471F' : '#1A1A2E', fontWeight: 700, fontSize: 15 }}>{title}</p>
       </div>
       {active && (
         <>
           <p style={{ color: '#9B9490', fontSize: 13, marginBottom: 14, lineHeight: 1.5 }}>{desc}</p>
           <div style={{ marginBottom: 14 }}>{action}</div>
           <button type="button" onClick={onContinue}
-            style={{ width: '100%', background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 15, padding: '12px 0', borderRadius: 12 }}>
+            style={{ width: '100%', background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 15, padding: '12px 0', borderRadius: 12 }}>
             {continueLabel}
           </button>
         </>
@@ -204,6 +205,7 @@ function StepCard({ num, active, done, title, desc, action, onContinue, continue
 }
 
 export default function SettingsPage() {
+  const { theme, toggle: toggleTheme } = useTheme();
   const [pushNotifs, setPushNotifs] = useState(true);
   const [alertSound, setAlertSound] = useState(true);
   const [name, setName] = useState('Your Name');
@@ -238,14 +240,14 @@ export default function SettingsPage() {
       </div>
 
       {/* Plan banner */}
-      <div style={{ margin: '0 16px 20px', background: 'rgba(232,96,28,0.08)', border: '1px solid rgba(232,96,28,0.15)', borderRadius: 16, padding: 16 }}>
+      <div style={{ margin: '0 16px 20px', background: 'rgba(251,71,31,0.08)', border: '1px solid rgba(251,71,31,0.15)', borderRadius: 16, padding: 16 }}>
         <div className="flex items-center justify-between">
           <div>
-            <p style={{ color: '#E8601C', fontWeight: 700, fontSize: 15 }}>Basic Plan</p>
+            <p style={{ color: '#FB471F', fontWeight: 700, fontSize: 15 }}>Basic Plan</p>
             <p style={{ color: '#9B9490', fontSize: 13, marginTop: 2 }}>5 searches · Facebook Marketplace</p>
           </div>
           <button type="button" onClick={() => soon('Upgrade to Pro')}
-            style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 13, padding: '7px 14px', borderRadius: 20 }}>
+            style={{ background: '#FB471F', color: '#fff', fontWeight: 700, fontSize: 13, padding: '7px 14px', borderRadius: 20 }}>
             Upgrade
           </button>
         </div>
@@ -269,13 +271,17 @@ export default function SettingsPage() {
           className="active:opacity-60 transition-opacity">
           <div>
             <p style={{ color: '#1A1A2E', fontSize: 15 }}>Facebook Marketplace</p>
-            <p style={{ color: apifyConnected ? '#E8601C' : '#eab308', fontSize: 12, marginTop: 2 }}>
+            <p style={{ color: apifyConnected ? '#FB471F' : '#eab308', fontSize: 12, marginTop: 2 }}>
               {apifyConnected === null ? 'Checking…' : apifyConnected ? '● Live — Apify connected' : '● Demo mode — tap to connect'}
             </p>
           </div>
           {chevron}
         </div>
         <Row label="KBB / Market Values" value="MarketCheck API" onTap={() => soon('MarketCheck Integration')} />
+      </Section>
+
+      <Section title="Appearance">
+        <ToggleRow label="Dark Mode" active={theme === 'dark'} onToggle={toggleTheme} />
       </Section>
 
       <Section title="Notifications">

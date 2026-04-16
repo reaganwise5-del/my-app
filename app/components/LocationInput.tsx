@@ -87,7 +87,7 @@ export default function LocationInput({
         />
         {loading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <div style={{ width: 16, height: 16, borderWidth: 2, borderStyle: 'solid', borderColor: '#E8601C', borderTopColor: 'transparent', borderRadius: '50%' }} className="animate-spin" />
+            <div style={{ width: 16, height: 16, borderWidth: 2, borderStyle: 'solid', borderColor: '#FB471F', borderTopColor: 'transparent', borderRadius: '50%' }} className="animate-spin" />
           </div>
         )}
       </div>
@@ -103,7 +103,7 @@ export default function LocationInput({
               className="hover:bg-stone-50 transition-colors"
             >
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" className="shrink-0">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#E8601C" />
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z" fill="#FB471F" />
               </svg>
               <span style={{ fontSize: 14, color: '#1A1A2E' }}>{s}</span>
             </button>

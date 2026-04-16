@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const ORANGE = '#E8601C';
+const ORANGE = '#FB471F';
 const INACTIVE = '#A09890';
 
 const tabs = [

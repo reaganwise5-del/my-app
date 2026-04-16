@@ -25,28 +25,28 @@ export default function ListingDetailPage() {
   // Bar fill: how good is the deal? invert ratio, clamp 0–100
   const barFill = Math.round(Math.max(0, Math.min(100, (1 - ratio) * 250 + 30)));
   // Bar color: orange if good deal, yellow if fair, red if overpriced
-  const barColor = ratio < 0.75 ? '#E8601C' : ratio < 0.90 ? '#eab308' : '#ef4444';
+  const barColor = ratio < 0.75 ? '#FB471F' : ratio < 0.90 ? '#eab308' : '#ef4444';
   // Needle position on the scale (0=far left=steal, 100=far right=overpriced)
   const needlePos = Math.round(Math.max(5, Math.min(95, ratio * 80)));
 
   // Deal label
   const dealLabel = profitPct >= 35 ? '🔥 Steal' : profitPct >= 20 ? '✅ Great Deal' : profitPct >= 10 ? '👍 Good Deal' : 'Fair';
-  const dealLabelBg = profitPct >= 35 ? '#E8601C' : profitPct >= 20 ? '#C44B0F' : profitPct >= 10 ? '#854d0e' : '#F0ECE7';
+  const dealLabelBg = profitPct >= 35 ? '#FB471F' : profitPct >= 20 ? '#C44B0F' : profitPct >= 10 ? '#854d0e' : '#F0ECE7';
   const dealLabelColor = profitPct >= 10 ? (profitPct >= 20 ? '#fff' : '#fde68a') : '#6B6560';
 
   return (
     <div style={{ background: '#FAF8F5', minHeight: '100vh', paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 20, background: 'rgba(250,248,245,0.90)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '0.5px solid rgba(26,26,46,0.08)', padding: '52px 16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <button type="button" onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#E8601C', fontSize: 17, background: 'none', padding: 0 }}>
+        <button type="button" onClick={() => router.back()} style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#FB471F', fontSize: 17, background: 'none', padding: 0 }}>
           <svg width="10" height="17" fill="none" viewBox="0 0 10 17">
-            <path d="M9 1L1 8.5 9 16" stroke="#E8601C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 1L1 8.5 9 16" stroke="#FB471F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Feed
         </button>
         <button type="button" onClick={() => setSaved(v => !v)} style={{ background: 'none', padding: 4 }}>
-          <svg width="24" height="24" fill={saved ? '#E8601C' : 'none'} viewBox="0 0 24 24">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke={saved ? '#E8601C' : '#9B9490'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <svg width="24" height="24" fill={saved ? '#FB471F' : 'none'} viewBox="0 0 24 24">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke={saved ? '#FB471F' : '#9B9490'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
       </div>
@@ -72,14 +72,14 @@ export default function ListingDetailPage() {
         </p>
 
         {/* Profit highlight */}
-        <div style={{ background: 'rgba(232,96,28,0.08)', borderRadius: 14, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ background: 'rgba(251,71,31,0.08)', borderRadius: 14, padding: '14px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <p style={{ color: '#9B9490', fontSize: 12 }}>Est. Profit</p>
-            <p style={{ color: '#E8601C', fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>+${listing.profit.toLocaleString()}</p>
+            <p style={{ color: '#FB471F', fontWeight: 800, fontSize: 28, letterSpacing: -1 }}>+${listing.profit.toLocaleString()}</p>
           </div>
           <div style={{ textAlign: 'right' }}>
             <p style={{ color: '#9B9490', fontSize: 12 }}>Margin</p>
-            <p style={{ color: '#E8601C', fontWeight: 700, fontSize: 20 }}>{profitPct}%</p>
+            <p style={{ color: '#FB471F', fontWeight: 700, fontSize: 20 }}>{profitPct}%</p>
           </div>
         </div>
 
@@ -98,12 +98,12 @@ export default function ListingDetailPage() {
 
           {/* Scale bar — red to green gradient, needle shows where this deal sits */}
           <p style={{ color: '#9B9490', fontSize: 12, marginBottom: 8 }}>Deal Scale</p>
-          <div style={{ position: 'relative', height: 10, borderRadius: 10, background: 'linear-gradient(to right, #E8601C, #eab308, #ef4444)', marginBottom: 6 }}>
+          <div style={{ position: 'relative', height: 10, borderRadius: 10, background: 'linear-gradient(to right, #FB471F, #eab308, #ef4444)', marginBottom: 6 }}>
             {/* Needle */}
             <div style={{ position: 'absolute', top: -4, left: `${needlePos}%`, transform: 'translateX(-50%)', width: 18, height: 18, background: '#fff', borderRadius: '50%', boxShadow: '0 0 0 3px ' + barColor, border: '2px solid rgba(26,26,46,0.12)' }} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span style={{ color: '#E8601C', fontSize: 10, fontWeight: 600 }}>Steal</span>
+            <span style={{ color: '#FB471F', fontSize: 10, fontWeight: 600 }}>Steal</span>
             <span style={{ color: '#eab308', fontSize: 10, fontWeight: 600 }}>Fair</span>
             <span style={{ color: '#ef4444', fontSize: 10, fontWeight: 600 }}>Overpriced</span>
           </div>
@@ -113,12 +113,12 @@ export default function ListingDetailPage() {
         <button
           type="button"
           onClick={() => setAiOpen(true)}
-          style={{ width: '100%', background: 'rgba(232,96,28,0.06)', border: '1px solid rgba(232,96,28,0.2)', borderRadius: 14, padding: '14px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, cursor: 'pointer' }}
+          style={{ width: '100%', background: 'rgba(251,71,31,0.06)', border: '1px solid rgba(251,71,31,0.2)', borderRadius: 14, padding: '14px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16, cursor: 'pointer' }}
         >
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
-            <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#E8601C" strokeWidth="2" strokeLinejoin="round" />
+            <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#FB471F" strokeWidth="2" strokeLinejoin="round" />
           </svg>
-          <span style={{ color: '#E8601C', fontWeight: 700, fontSize: 15 }}>Get Full Breakdown</span>
+          <span style={{ color: '#FB471F', fontWeight: 700, fontSize: 15 }}>Get Full Breakdown</span>
         </button>
 
         {/* Details */}
@@ -156,9 +156,9 @@ export default function ListingDetailPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'flex-end' }}>
           <div style={{ background: '#FAF8F5', borderRadius: '20px 20px 0 0', width: '100%', padding: '24px 20px 48px', textAlign: 'center' }}>
             <div style={{ width: 36, height: 5, background: '#E0D9D0', borderRadius: 3, margin: '0 auto 24px' }} />
-            <div style={{ width: 56, height: 56, background: 'rgba(232,96,28,0.10)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <div style={{ width: 56, height: 56, background: 'rgba(251,71,31,0.10)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <svg width="28" height="28" fill="none" viewBox="0 0 24 24">
-                <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#E8601C" strokeWidth="2" strokeLinejoin="round" />
+                <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" stroke="#FB471F" strokeWidth="2" strokeLinejoin="round" />
               </svg>
             </div>
             <p style={{ color: '#1A1A2E', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Full Deal Breakdown</p>
