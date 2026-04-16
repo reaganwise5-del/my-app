@@ -10,7 +10,6 @@ import { mockListings, mockSearches, type Listing, type Search } from '../lib/mo
 type Tab = 'picks' | 'all';
 type DataSource = 'live' | 'demo' | 'loading' | 'error';
 
-// Read saved searches from localStorage, fall back to mockSearches
 function getSavedSearches(): Search[] {
   if (typeof window === 'undefined') return mockSearches;
   try {
@@ -29,7 +28,6 @@ export default function FeedPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchProgress, setSearchProgress] = useState('');
 
-  // Pull-to-refresh state
   const [pullY, setPullY] = useState(0);
   const touchStartY = useRef(0);
   const isPulling = useRef(false);
@@ -39,93 +37,44 @@ export default function FeedPage() {
     setSource('loading');
     setRefreshing(true);
     setSearchProgress('');
-
     try {
-      // Get the customer's active search alerts
       const searches = getSavedSearches().filter(s => s.active);
-
       if (searches.length === 0) {
-        // No active searches — do a generic search
-        searches.push({
-          id: 'default', name: 'Used Cars', make: 'Any', model: 'Any',
-          minYear: 2012, maxYear: 2024, maxPrice: 20000, maxMileage: 150000,
-          zipCode: '', radius: 50, active: true, alertsToday: 0,
-        });
+        searches.push({ id: 'default', name: 'Used Cars', make: 'Any', model: 'Any', minYear: 2012, maxYear: 2024, maxPrice: 20000, maxMileage: 150000, zipCode: '', radius: 50, active: true, alertsToday: 0 });
       }
 
-      // Run one Apify search per active alert, collect all results
       const allListings: Listing[] = [];
       const seen = new Set<string>();
 
       for (let i = 0; i < searches.length; i++) {
         const s = searches[i];
         setSearchProgress(`Searching "${s.name}" (${i + 1}/${searches.length})…`);
-
         try {
           const res = await fetch('/api/listings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              make: s.make,
-              model: s.model,
-              maxPrice: s.maxPrice,
-              maxMileage: s.maxMileage,
-              minYear: s.minYear,
-              location: s.zipCode,
-              radius: s.radius,
-              maxResults: 30,
-            }),
+            body: JSON.stringify({ make: s.make, model: s.model, maxPrice: s.maxPrice, maxMileage: s.maxMileage, minYear: s.minYear, location: s.zipCode, radius: s.radius, maxResults: 30 }),
           });
-
           const data = await res.json();
-
-          if (data.error?.includes('APIFY_API_KEY not set')) {
-            setSource('demo');
-            setListings(mockListings);
-            return;
-          }
-
+          if (data.error?.includes('APIFY_API_KEY not set')) { setSource('demo'); setListings(mockListings); return; }
           if (data.listings?.length) {
             for (const l of data.listings) {
-              if (!seen.has(l.id)) {
-                seen.add(l.id);
-                allListings.push(l as Listing);
-              }
+              if (!seen.has(l.id)) { seen.add(l.id); allListings.push(l as Listing); }
             }
           }
-        } catch {
-          // one search failed — continue to next
-          continue;
-        }
+        } catch { continue; }
       }
 
       setSearchProgress('');
-
-      if (allListings.length > 0) {
-        setListings(allListings);
-        setSource('live');
-        setLastRefresh(new Date());
-      } else {
-        setSource('error');
-        setListings(mockListings);
-      }
-
-    } catch {
-      setSource('error');
-      setListings(mockListings);
-    } finally {
-      setRefreshing(false);
-    }
+      if (allListings.length > 0) { setListings(allListings); setSource('live'); setLastRefresh(new Date()); }
+      else { setSource('error'); setListings(mockListings); }
+    } catch { setSource('error'); setListings(mockListings); }
+    finally { setRefreshing(false); }
   }, []);
 
-  useEffect(() => {
-    fetchRealListings();
-  }, [fetchRealListings]);
+  useEffect(() => { fetchRealListings(); }, [fetchRealListings]);
 
-  const topDeals = [...listings]
-    .filter(l => (l.profit / l.askingPrice) >= 0.15)
-    .sort((a, b) => (b.profit / b.askingPrice) - (a.profit / a.askingPrice));
-
+  const topDeals = [...listings].filter(l => (l.profit / l.askingPrice) >= 0.15).sort((a, b) => (b.profit / b.askingPrice) - (a.profit / a.askingPrice));
   const allSorted = [...listings].sort((a, b) => a.postedMinutesAgo - b.postedMinutesAgo);
   const displayListings = tab === 'picks' ? topDeals : allSorted;
 
@@ -137,104 +86,77 @@ export default function FeedPage() {
   }
 
   function onTouchStart(e: React.TouchEvent) {
-    // Only activate pull-to-refresh when scrolled to top
-    if (window.scrollY === 0) {
-      touchStartY.current = e.touches[0].clientY;
-      isPulling.current = true;
-    }
+    if (window.scrollY === 0) { touchStartY.current = e.touches[0].clientY; isPulling.current = true; }
   }
-
   function onTouchMove(e: React.TouchEvent) {
     if (!isPulling.current || refreshing) return;
     const dy = e.touches[0].clientY - touchStartY.current;
     if (dy > 0) setPullY(Math.min(dy, PULL_THRESHOLD + 20));
   }
-
   function onTouchEnd() {
-    if (pullY >= PULL_THRESHOLD && !refreshing) {
-      fetchRealListings();
-    }
+    if (pullY >= PULL_THRESHOLD && !refreshing) fetchRealListings();
     setPullY(0);
     isPulling.current = false;
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#000' }}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* Pull to refresh indicator */}
+    <div className="min-h-screen pb-28" style={{ background: '#FAF8F5' }}
+      onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+
+      {/* Pull indicator */}
       {pullY > 0 && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: pullY, overflow: 'hidden', transition: 'height 0.1s' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: pullY, overflow: 'hidden' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, opacity: pullY / PULL_THRESHOLD }}>
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
-              className={pullY >= PULL_THRESHOLD ? 'spinning' : ''}
-              style={{ transform: pullY < PULL_THRESHOLD ? `rotate(${(pullY / PULL_THRESHOLD) * 180}deg)` : undefined }}>
-              <path d="M23 4v6h-6M1 20v-6h6" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" className={pullY >= PULL_THRESHOLD ? 'spinning' : ''} style={{ transform: pullY < PULL_THRESHOLD ? `rotate(${(pullY / PULL_THRESHOLD) * 180}deg)` : undefined }}>
+              <path d="M23 4v6h-6M1 20v-6h6" stroke="#9B9490" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="#9B9490" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span style={{ color: '#636366', fontSize: 13 }}>
-              {pullY >= PULL_THRESHOLD ? 'Release to refresh' : 'Pull to refresh'}
-            </span>
+            <span style={{ color: '#9B9490', fontSize: 13, fontWeight: 500 }}>{pullY >= PULL_THRESHOLD ? 'Release to refresh' : 'Pull to refresh'}</span>
           </div>
         </div>
       )}
 
       {/* Header */}
-      <div className="sticky top-0 z-40 px-5 pt-12 pb-3" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px) saturate(180%)', borderBottom: '0.5px solid rgba(255,255,255,0.08)' }}>
+      <div className="sticky top-0 z-40 px-5 pt-12 pb-3" style={{ background: 'rgba(250,248,245,0.92)', backdropFilter: 'blur(20px) saturate(180%)', borderBottom: '1px solid rgba(26,26,46,0.07)' }}>
         <div className="flex items-center justify-between mb-4">
           <Logo size="sm" />
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* Refresh button — always visible */}
-            <button
-              type="button"
-              onClick={fetchRealListings}
-              disabled={refreshing}
-              style={{ width: 34, height: 34, background: '#1C1C1E', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.08)', opacity: refreshing ? 0.4 : 1 }}
-            >
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24"
-                className={refreshing ? 'spinning' : ''}>
-                <path d="M23 4v6h-6M1 20v-6h6" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="#8E8E93" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <button type="button" onClick={fetchRealListings} disabled={refreshing}
+              style={{ width: 36, height: 36, background: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(26,26,46,0.10)', boxShadow: '0 1px 3px rgba(26,26,46,0.06)', opacity: refreshing ? 0.4 : 1 }}>
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" className={refreshing ? 'spinning' : ''}>
+                <path d="M23 4v6h-6M1 20v-6h6" stroke="#6B6560" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" stroke="#6B6560" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <button
-              type="button"
-              onClick={() => setShowModal(true)}
-              style={{ background: '#1C1C1E', color: '#fff', fontWeight: 600, fontSize: 13, padding: '7px 14px', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)' }}
-            >
-              + New Alert
+            <button type="button" onClick={() => setShowModal(true)}
+              style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 13, padding: '8px 16px', borderRadius: 20, border: 'none', boxShadow: '0 2px 8px rgba(232,96,28,0.30)' }}>
+              + Alert
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 6, background: '#1C1C1E', borderRadius: 10, padding: 3 }}>
+        <div style={{ display: 'flex', gap: 6, background: 'rgba(26,26,46,0.06)', borderRadius: 12, padding: 3 }}>
           {(['picks', 'all'] as Tab[]).map(t => (
             <button key={t} type="button" onClick={() => setTab(t)}
-              style={{ flex: 1, padding: '7px 0', borderRadius: 8, fontSize: 13, fontWeight: 600, color: tab === t ? '#fff' : '#636366', background: tab === t ? '#3A3A3C' : 'transparent', transition: 'all 0.2s' }}>
-              {t === 'picks' ? 'Top Deals' : 'All Listings'}
+              style={{ flex: 1, padding: '8px 0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: tab === t ? '#1A1A2E' : '#9B9490', background: tab === t ? '#fff' : 'transparent', boxShadow: tab === t ? '0 1px 4px rgba(26,26,46,0.10)' : 'none', transition: 'all 0.2s' }}>
+              {t === 'picks' ? '⚡ Top Deals' : 'All Listings'}
             </button>
           ))}
         </div>
       </div>
 
       {/* Status banner */}
-      <StatusBanner source={source} lastRefresh={lastRefresh} refreshing={refreshing}
-        progress={searchProgress} onRefresh={fetchRealListings} timeSince={timeSince} />
+      <StatusBanner source={source} lastRefresh={lastRefresh} refreshing={refreshing} progress={searchProgress} onRefresh={fetchRealListings} timeSince={timeSince} />
 
       {/* Feed */}
-      <div style={{ padding: '12px 12px 0' }}>
+      <div style={{ padding: '16px 14px 0' }}>
         {source === 'loading' ? (
           <LoadingSkeleton progress={searchProgress} />
         ) : displayListings.length === 0 ? (
-          <div style={{ textAlign: 'center', paddingTop: 80 }}>
-            <p style={{ color: '#636366', fontSize: 15 }}>No listings found.</p>
-            <p style={{ color: '#3A3A3C', fontSize: 13, marginTop: 4 }}>Try adjusting your search filters.</p>
-          </div>
+          <EmptyState onAdd={() => setShowModal(true)} />
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {displayListings.map((listing) => (
               <ListingCardGrid key={listing.id} listing={listing} />
             ))}
@@ -248,75 +170,78 @@ export default function FeedPage() {
   );
 }
 
-// ─── Status Banner ────────────────────────────────────────────
 function StatusBanner({ source, lastRefresh, refreshing, progress, onRefresh, timeSince }: {
-  source: DataSource; lastRefresh: Date | null; refreshing: boolean;
-  progress: string; onRefresh: () => void; timeSince: (d: Date) => string;
+  source: DataSource; lastRefresh: Date | null; refreshing: boolean; progress: string; onRefresh: () => void; timeSince: (d: Date) => string;
 }) {
-  if (source === 'live') {
-    return (
-      <div style={{ margin: '12px 16px 0', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 7, height: 7, background: '#22c55e', borderRadius: '50%', display: 'inline-block' }} />
-          <span style={{ color: '#22c55e', fontSize: 13, fontWeight: 600 }}>Live</span>
-          {lastRefresh && <span style={{ color: '#636366', fontSize: 12 }}>· {timeSince(lastRefresh)}</span>}
-        </div>
-        <button type="button" onClick={onRefresh} disabled={refreshing}
-          style={{ color: '#8E8E93', fontSize: 12, fontWeight: 500, opacity: refreshing ? 0.4 : 1 }}>
-          {refreshing ? 'Refreshing…' : 'Refresh'}
-        </button>
-      </div>
-    );
-  }
+  const base: React.CSSProperties = { margin: '12px 14px 0', borderRadius: 12, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 };
 
-  if (source === 'demo') {
-    return (
-      <div style={{ margin: '12px 16px 0', background: '#1C1C1E', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ color: '#636366', fontSize: 13 }}>Showing demo listings</span>
-        <a href="/settings" style={{ color: '#8E8E93', fontSize: 12 }}>Connect data →</a>
+  if (source === 'live') return (
+    <div style={{ ...base, background: 'rgba(21,128,61,0.07)', border: '1px solid rgba(21,128,61,0.14)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+        <span style={{ width: 7, height: 7, background: '#15803D', borderRadius: '50%', display: 'inline-block', boxShadow: '0 0 6px rgba(21,128,61,0.5)' }} />
+        <span style={{ color: '#15803D', fontWeight: 600 }}>Live data</span>
+        {lastRefresh && <span style={{ color: '#9B9490', fontSize: 12 }}>· {timeSince(lastRefresh)}</span>}
       </div>
-    );
-  }
+      <button type="button" onClick={onRefresh} disabled={refreshing} style={{ color: '#6B6560', fontSize: 12, fontWeight: 600, opacity: refreshing ? 0.4 : 1, background: 'none', border: 'none', cursor: 'pointer' }}>
+        {refreshing ? 'Refreshing…' : 'Refresh'}
+      </button>
+    </div>
+  );
 
-  if (source === 'error') {
-    return (
-      <div style={{ margin: '12px 16px 0', background: '#1C1C1E', borderRadius: 14, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ color: '#636366', fontSize: 13 }}>Showing demo listings</span>
-        <button type="button" onClick={onRefresh} style={{ color: '#8E8E93', fontSize: 12 }}>Retry</button>
-      </div>
-    );
-  }
-
-  // loading
-  return (
-    <div style={{ margin: '12px 16px 0', background: '#1C1C1E', borderRadius: 14, padding: '10px 14px' }}>
+  if (source === 'loading') return (
+    <div style={{ ...base, background: 'rgba(26,26,46,0.04)', border: '1px solid rgba(26,26,46,0.07)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ width: 7, height: 7, background: '#636366', borderRadius: '50%', display: 'inline-block' }} />
-        <span style={{ color: '#636366', fontSize: 13 }}>{progress || 'Loading listings…'}</span>
+        <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#D5CFC8' }} className="skeleton" />
+        <span style={{ color: '#6B6560', fontWeight: 500 }}>{progress || 'Scanning listings…'}</span>
+      </div>
+    </div>
+  );
+
+  if (source === 'demo') return (
+    <div style={{ ...base, background: 'rgba(232,96,28,0.06)', border: '1px solid rgba(232,96,28,0.12)' }}>
+      <span style={{ color: '#9B6B4A', fontWeight: 500 }}>Sample listings — connect your city to go live</span>
+      <a href="/settings" style={{ color: '#E8601C', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>Setup →</a>
+    </div>
+  );
+
+  return (
+    <div style={{ ...base, background: 'rgba(26,26,46,0.04)', border: '1px solid rgba(26,26,46,0.07)' }}>
+      <span style={{ color: '#9B9490' }}>Couldn't load live data</span>
+      <button type="button" onClick={onRefresh} style={{ color: '#E8601C', fontSize: 12, fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>Retry</button>
+    </div>
+  );
+}
+
+function LoadingSkeleton({ progress }: { progress: string }) {
+  return (
+    <div>
+      {progress && <p style={{ color: '#9B9490', fontSize: 12, textAlign: 'center', marginBottom: 16, fontWeight: 500 }}>{progress}</p>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {[...Array(4)].map((_, i) => (
+          <div key={i} style={{ background: '#fff', borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(26,26,46,0.06)', boxShadow: '0 1px 3px rgba(26,26,46,0.05)' }}>
+            <div className="skeleton" style={{ height: 190 }} />
+            <div style={{ padding: '14px 16px 16px' }}>
+              <div className="skeleton" style={{ height: 14, borderRadius: 6, marginBottom: 8, width: '75%' }} />
+              <div className="skeleton" style={{ height: 11, borderRadius: 6, marginBottom: 16, width: '45%' }} />
+              <div className="skeleton" style={{ height: 4, borderRadius: 4 }} />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-// ─── Loading Skeleton ─────────────────────────────────────────
-function LoadingSkeleton({ progress }: { progress: string }) {
+function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
-    <div>
-      {progress && (
-        <p style={{ color: '#636366', fontSize: 12, textAlign: 'center', marginBottom: 16 }}>{progress}</p>
-      )}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} style={{ background: '#141414', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ height: 118, background: '#1C1C1E' }} />
-            <div style={{ padding: '10px 11px 12px' }}>
-              <div style={{ height: 11, background: '#1C1C1E', borderRadius: 4, marginBottom: 6, width: '80%' }} />
-              <div style={{ height: 9, background: '#1C1C1E', borderRadius: 4, marginBottom: 12, width: '50%' }} />
-              <div style={{ height: 14, background: '#1C1C1E', borderRadius: 4, width: '70%' }} />
-            </div>
-          </div>
-        ))}
-      </div>
+    <div style={{ textAlign: 'center', padding: '60px 32px', background: '#fff', borderRadius: 18, border: '1px solid rgba(26,26,46,0.06)', boxShadow: '0 1px 3px rgba(26,26,46,0.05)' }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>🚗</div>
+      <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, color: '#1A1A2E', marginBottom: 8 }}>No deals yet</p>
+      <p style={{ color: '#9B9490', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>Create an alert and we'll scan Facebook Marketplace for deals in your area.</p>
+      <button type="button" onClick={onAdd}
+        style={{ background: '#E8601C', color: '#fff', fontWeight: 700, fontSize: 15, padding: '13px 28px', borderRadius: 24, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(232,96,28,0.35)' }}>
+        Create your first alert
+      </button>
     </div>
   );
 }

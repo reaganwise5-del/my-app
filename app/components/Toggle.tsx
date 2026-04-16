@@ -7,30 +7,28 @@ export default function Toggle({ active, onToggle }: { active: boolean; onToggle
       onClick={onToggle}
       style={{
         position: 'relative',
-        width: 52,
-        height: 30,
+        width: 48,
+        height: 28,
         borderRadius: 999,
-        backgroundColor: active ? '#22c55e' : '#3f3f46',
+        backgroundColor: active ? '#E8601C' : '#D5CFC8',
         border: 'none',
         cursor: 'pointer',
         flexShrink: 0,
-        transition: 'background-color 0.2s',
+        transition: 'background-color 0.2s ease',
       }}
     >
-      <span
-        style={{
-          position: 'absolute',
-          top: 4,
-          left: active ? 26 : 4,
-          width: 22,
-          height: 22,
-          borderRadius: '50%',
-          backgroundColor: 'white',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
-          transition: 'left 0.2s',
-          display: 'block',
-        }}
-      />
+      <span style={{
+        position: 'absolute',
+        top: 3,
+        left: active ? 23 : 3,
+        width: 22,
+        height: 22,
+        borderRadius: '50%',
+        backgroundColor: 'white',
+        boxShadow: '0 1px 4px rgba(26,26,46,0.25)',
+        transition: 'left 0.2s ease',
+        display: 'block',
+      }} />
     </button>
   );
 }

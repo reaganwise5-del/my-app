@@ -6,14 +6,17 @@ export const metadata: Metadata = {
   description: "Car flip deal alerts — faster than anyone else",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="h-full">
-      <body className="min-h-full bg-black text-white antialiased">{children}</body>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+      </head>
+      <body className="min-h-full antialiased" style={{ background: '#FAF8F5', color: '#1A1A2E' }}>
+        {children}
+      </body>
     </html>
   );
 }

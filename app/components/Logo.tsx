@@ -1,28 +1,17 @@
 export default function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const sizes = {
-    sm: { icon: 18, text: 'text-lg', gap: 'gap-1.5' },
-    md: { icon: 24, text: 'text-2xl', gap: 'gap-2' },
-    lg: { icon: 32, text: 'text-3xl', gap: 'gap-2.5' },
-  };
-  const s = sizes[size];
+  const s = size === 'sm' ? { box: 30, icon: 14, fontSize: 17 }
+           : size === 'lg' ? { box: 44, icon: 20, fontSize: 26 }
+           : { box: 36, icon: 17, fontSize: 21 };
 
   return (
-    <div className={`flex items-center ${s.gap}`}>
-      {/* Icon: lightning bolt in green circle */}
-      <div
-        className="rounded-xl flex items-center justify-center bg-green-500 shrink-0"
-        style={{ width: s.icon + 10, height: s.icon + 10 }}
-      >
-        <svg width={s.icon - 4} height={s.icon - 4} viewBox="0 0 16 16" fill="none">
-          <path
-            d="M9.5 1.5L4 9h5l-2.5 5.5L14 7H9L9.5 1.5z"
-            fill="white"
-            strokeLinejoin="round"
-          />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+      <div style={{ width: s.box, height: s.box, borderRadius: 10, background: '#E8601C', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(232,96,28,0.35)' }}>
+        <svg width={s.icon} height={s.icon} viewBox="0 0 16 16" fill="none">
+          <path d="M9.5 1.5L4 9h5l-2.5 5.5L14 7H9L9.5 1.5z" fill="white" />
         </svg>
       </div>
-      <span className={`font-black tracking-tight text-white ${s.text}`}>
-        Flip<span className="text-green-400">Alert</span>
+      <span style={{ fontWeight: 800, fontSize: s.fontSize, letterSpacing: -0.6, color: '#1A1A2E', lineHeight: 1 }}>
+        Flip<span style={{ color: '#E8601C' }}>Alert</span>
       </span>
     </div>
   );
